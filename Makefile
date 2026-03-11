@@ -2,8 +2,8 @@ NAME	= ircserv
 CPP	= c++
 CFLAGS	= -std=c++98 -g -Wall -Wextra -Werror
 
-SRCS	= Parser.cpp \
-		  main.cpp
+SRCS	= src/Utils/Parser.cpp \
+		  src/main.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 
