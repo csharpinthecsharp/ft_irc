@@ -1,4 +1,5 @@
 #include "Utils/Parser.hpp"
+#include "Server.hpp"
 
 int main( int ac, char **av)
 {
@@ -10,7 +11,8 @@ int main( int ac, char **av)
     try 
     {
         Parser pr(av[1], av[2]);
-        std::cout << pr << std::endl; 
+        std::cout << pr << std::endl;
+        Server sr;
     }
     catch (std::exception & e) 
     {

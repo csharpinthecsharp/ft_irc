@@ -3,7 +3,8 @@ CPP	= c++
 CFLAGS	= -std=c++98 -g -Wall -Wextra -Werror
 
 SRCS	= src/Utils/Parser.cpp \
-		  src/main.cpp
+		  src/main.cpp \
+		  src/Server.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 

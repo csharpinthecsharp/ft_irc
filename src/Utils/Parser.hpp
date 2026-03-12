@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <exception>
+#include "Exceptions.hpp"
 
 class Parser 
 {
@@ -18,6 +19,7 @@ class Parser
         Parser( std::string port, std::string psswrd );
         ~Parser();
 
+        void checkArguments( const std::string& port, const std::string& psswrd ) const;
         unsigned int getPort() const;
         std::string getPsswrd() const;
 };

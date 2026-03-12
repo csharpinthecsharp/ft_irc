@@ -16,12 +16,13 @@
 >>> Public:
 * - Parser() > Le constructeur par défaut.
 *
-* - Parser( std::string port, std::string psswrd ) > Le constructeur qui permet d'initialiser le port et le password,
-    Ce constructeur doit accepter le PORT + PASSWORD. 
-        Sinon on throw une erreur et le programme se stop.
+* - Parser( std::string port, std::string psswrd ) > Le constructeur, il va enregistrer les arguments (port + password).
 *
 * - ~Parser() > Le destructeur.
 * 
+* void Parser::checkArguments( const std::string& port, const std::string& psswrd ) const > Doit accepter le PORT + PASSWORD. 
+                                                                                                Sinon on throw une erreur et le programme se stop.
+*
 * - unsigned int getPort() const > Fonction getter qui retourne le port.
 *
 * - unsigned int getPsswrd() const > Fonction getter qui retourne le password.
@@ -40,3 +41,15 @@
 * - class WrongPasswordException > Exception si le password est incorrect.
 *
 <<<<<< Exceptions.hpp ->
+*
+*
+>>>>>> Server.hpp ->
+* - Server() > Le constructeur par défaut, il appelle createSocket();
+*
+* - Server() > Le destructeur.
+*
+* - int createSocket(); > On créer un endpoint pour la communication, 
+        socket() nous retourne le fd qui pointe dessus.
+            si ça fail == -1.
+*
+<<<<<< <- Server.hpp

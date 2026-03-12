@@ -24,4 +24,11 @@ public:
     }
 };
 
+class SocketCreationFailedException : public std::exception {
+public:
+    virtual const char *what() const throw() {
+        return "ERROR: SOCKET FAILED TO CREATE";
+    }
+};
+
 #endif
