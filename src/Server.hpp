@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <netinet/ip.h>
 
+#define FAIL -1
+
 class Server 
 {
     private:

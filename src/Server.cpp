@@ -12,7 +12,7 @@ int Server::createSocket()
     // SOCK_STREAM = Connection-oriented communication (type);
     // IPPROTO_TCP = PROTOCOL (TCP);
     int temp = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (temp == -1)
+    if (temp == FAIL)
         throw SocketCreationFailedException();
     return temp;
 }
