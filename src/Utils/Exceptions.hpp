@@ -24,10 +24,38 @@ public:
     }
 };
 
-class SocketCreationFailedException : public std::exception {
+class ServerSocketCreationFailedException : public std::exception {
 public:
     virtual const char *what() const throw() {
-        return "ERROR: SOCKET FAILED TO CREATE";
+        return "ERROR: SERVER SOCKET FAILED TO CREATE";
+    }
+};
+
+class ClientSocketCreationFailedException : public std::exception {
+public:
+    virtual const char *what() const throw() {
+        return "ERROR: CLIENT SOCKET FAILED TO CREATE";
+    }
+};
+
+class BindFailedExpection : public std::exception {
+public:
+    virtual const char *what() const throw() {
+        return "ERROR: BIND FAILED";
+    }
+};
+
+class ListenFailedExpection : public std::exception {
+public:
+    virtual const char *what() const throw() {
+        return "ERROR: LISTENING FAILED";
+    }
+};
+
+class GettingNameInfoFailedException : public std::exception {
+public:
+    virtual const char *what() const throw() {
+        return "ERROR: CANNOT RETRIEVE NAME INFO";
     }
 };
 

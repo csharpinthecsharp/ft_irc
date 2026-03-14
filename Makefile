@@ -4,7 +4,8 @@ CFLAGS	= -std=c++98 -g -Wall -Wextra -Werror
 
 SRCS	= src/Utils/Parser.cpp \
 		  src/main.cpp \
-		  src/Server.cpp
+		  src/Server.cpp \
+		  src/Client.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
 
