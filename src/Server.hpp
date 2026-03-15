@@ -7,21 +7,26 @@
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <vector>
+#include "Client.hpp"
 #define FAIL -1
+#define SUCCESS 0
+
+class Client;
 
 class Server 
 {
     private:
         int _listen_fd;
         unsigned int _loc_port;
+        std::vector<Client> _clients;
     public:
         Server( const Parser& parser );
         ~Server();
-        int createSocket();
-        void markSocket();
-        void acceptCall();
+        int createSocket() const;
+        void markSocket() const;
 
-        int getFd() const;
+        void open();
 };
 
 #endif

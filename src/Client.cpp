@@ -1,31 +1,20 @@
 #include "Client.hpp"
 
-Client::Client( const Server& server ) 
-: _loc_listen_fd(0),
+Client::Client( int sock_fd, sockaddr_in client, socklen_t client_size ) 
+: _sock_fd(0),
 _host(),
 _serv(),
 _clientSize(0),
 _client()
 {
-    this->_loc_listen_fd = server.getFd();
-    this->acceptCall();
+    this->_sock_fd = sock_fd;
+    this->_client = client;
+    this->_clientSize = client_size;
     this->fillNameInfo();
 }
 
 Client::~Client() {}
 
-void Client::acceptCall() 
-{
-    _clientSize = sizeof(_client);
-
-    int clientSocket = accept(this->_loc_listen_fd,
-                            (sockaddr*)&_client,
-                            &_clientSize);
-    if (clientSocket == FAIL)
-        throw ClientSocketCreationFailedException();
-    close(this->_loc_listen_fd);
-    return ;
-}
 
 void Client::fillNameInfo() 
 {
@@ -35,7 +24,7 @@ void Client::fillNameInfo()
                 NI_MAXHOST,
                 _serv, NI_MAXSERV, 0);
 
-    if (res != 0)
+    if (res != SUCCESS)
         throw GettingNameInfoFailedException();    
     else
         std::cout << _host << " connect on " << _serv << std::endl;

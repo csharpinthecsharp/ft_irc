@@ -14,7 +14,7 @@ int main( int ac, char **av)
         Parser parser(av[1], av[2]);
         std::cout << parser << std::endl;
         Server server(parser);
-        Client client(server);
+        server.open();
     }
     catch (std::exception & e) 
     {

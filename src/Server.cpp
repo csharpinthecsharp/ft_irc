@@ -1,6 +1,8 @@
 #include "Server.hpp"
 
-Server::Server( const Parser& parser ) : _listen_fd(0)
+Server::Server( const Parser& parser ) 
+: _listen_fd(0),
+_clients()
 {
     this->_loc_port = parser.getPort();
     this->_listen_fd = this->createSocket();
@@ -8,7 +10,7 @@ Server::Server( const Parser& parser ) : _listen_fd(0)
 }
 Server::~Server() {}
 
-int Server::createSocket() 
+int Server::createSocket() const 
 {
     // AF_INET = IPV4 (domain);
     // SOCK_STREAM = Connection-oriented communication (type);
@@ -19,7 +21,7 @@ int Server::createSocket()
     return temp;
 }
 
-void Server::markSocket()
+void Server::markSocket() const
 {
     sockaddr_in hint;
     hint.sin_family = AF_INET;
@@ -33,11 +35,26 @@ void Server::markSocket()
     // Mark for listening
     if (listen(this->_listen_fd, SOMAXCONN) == FAIL)
         throw ListenFailedExpection();
-    return ;
+     return ;
 }
 
-int Server::getFd() const {
-    return this->_listen_fd;
+void Server::open() {
+    while (1) 
+    {
+        sockaddr_in client;
+        socklen_t clientSize = sizeof(client);
+
+        int clientSocket = accept(this->_listen_fd,
+                                (sockaddr*)&client,
+                                &clientSize);
+        if (clientSocket == FAIL)
+            throw ClientSocketCreationFailedException();
+
+        _clients.push_back(Client(clientSocket, client, clientSize));
+
+        // Maintenant je dois répondre à (17:02 Waiting for CAP LS response...)
+    }
+    //close(this->_listen_fd);
 }
 
 
