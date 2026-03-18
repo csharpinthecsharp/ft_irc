@@ -31,7 +31,7 @@ unsigned int Parser::getPort() const
 {
     return this->_port;
 }
-std::string Parser::getPsswrd() const 
+std::string Parser::getPsswrd() const `
 {
     return this->_psswrd;
 }

@@ -6,7 +6,7 @@ SRCS	= src/Utils/Parser.cpp \
 		  src/main.cpp \
 		  src/Server.cpp \
 		  src/Client.cpp
-
+		  src/Message.cpp
 OBJS	= $(SRCS:.cpp=.o)
 
 GREEN = \033[0;32m
