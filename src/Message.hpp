@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#define IRCMAXBUFFSIZE_MSG 512
 
 class Message
 {

@@ -9,11 +9,11 @@
 #include <netdb.h>
 #include <map>
 #include "Client.hpp"
+#include "Message.hpp"
 #include <poll.h>
 #include <vector>
 #define FAIL -1
 #define SUCCESS 0
-#define IRCMAXBUFFSIZE_MSG 512
 
 class Client;
 
