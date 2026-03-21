@@ -18,16 +18,20 @@ class Client {
         std::string _username;
         std::string _realname;
 
-        std::string buffer; // Le buffer client n'a pas de limite
+        std::string _buffer; // Le buffer client n'a pas de limite
         // IIl doit pouvoir contenir plusieurs messages a la fois.
         // La delimiation pour chaque message est \r\n.
     public:
+        Client();
         Client( int sock_fd, sockaddr_in client, socklen_t client_size );
         ~Client();
 
+        void appendBuffer( const std::string& buffer );
+        void handleBufferData();
+
         void fillNameInfo();
         bool isAuthenticated() const;
-        bool isRegistered();
+        bool isRegistered() const;
         void setAuthenticated(bool value);
         void setRegistered(bool value);
         void sendReply(const std::string& reply);

@@ -56,12 +56,11 @@ void Server::open() {
         if (poll(all_poll.data(), all_poll.size(), -1) == FAIL)
             throw MainPolledFailedException();
 
-        for (size_t i(0); i < all_poll.size(); ++i)
+        for (size_t i(0); i < all_poll.size(); i++)
         {
-
             // revents doit etre check maintenant qu'il a été fill par poll(),
             // si il est vide rien ne s'est produit.
-            if (all_poll[i].revents & POLLIN)
+            if (!(all_poll[i].revents & (POLLIN | POLLHUP | POLLERR)))
                 continue;
             
             // cas 1 -> Nouveau client veut se connecter
@@ -76,25 +75,25 @@ void Server::open() {
                                         &clientSize);
                 if (client_fd == FAIL)
                     throw ClientSocketCreationFailedException();
-                
-                _clients.insert({client_fd, Client(client_fd, client, clientSize)});
+
+                _clients[client_fd] = Client(client_fd, client, clientSize);
 
                 struct pollfd c_poll;
-                c_poll.fd = this->_listen_fd;
+                c_poll.fd = client_fd;
                 c_poll.events = POLLIN;
                 c_poll.revents = 0;
                 all_poll.push_back(c_poll);
             }
             else
             {
-            // UN MESSAGE
                 char buffer[IRCMAXBUFFSIZE_MSG];
                 ssize_t data = recv(all_poll[i].fd, &buffer, sizeof(buffer) - 1, 0);
 
                 if (data > 0)
                 {
                     buffer[data] = '\0';
-                    // Append le client buffer + et proccess.
+                    _clients[all_poll[i].fd].appendBuffer(buffer);
+                    _clients[all_poll[i].fd].handleBufferData();
                 }
                 else
                 {

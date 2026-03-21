@@ -32,7 +32,7 @@ void handleNick(const Message& msg, Client& client) {
 
 void handleUser(const Message& msg, Client& client) {
     if (!client.isAuthenticated()) {
-        client.sendReply("451 :You have not registered")
+        client.sendReply("451 :You have not registered");
         return;
     }
     if (client.isRegistered()) {
