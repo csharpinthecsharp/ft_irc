@@ -59,4 +59,11 @@ public:
     }
 };
 
+class MainPolledFailedException : public std::exception {
+public:
+    virtual const char *what() const throw() {
+        return "ERROR: THE MAIN POLL FAILED";
+    }
+};
+
 #endif

@@ -12,6 +12,9 @@ class Client {
         char _serv[NI_MAXSERV];
         socklen_t _clientSize;
         sockaddr_in _client;
+        std::string buffer; // Le buffer client n'a pas de limite
+        // IIl doit pouvoir contenir plusieurs messages a la fois.
+        // La delimiation pour chaque message est \r\n.
     public:
         Client( int sock_fd, sockaddr_in client, socklen_t client_size );
         ~Client();
