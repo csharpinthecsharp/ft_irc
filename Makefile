@@ -5,8 +5,9 @@ CFLAGS	= -std=c++98 -g -Wall -Wextra -Werror
 SRCS	= src/Utils/Parser.cpp \
 		  src/main.cpp \
 		  src/Server.cpp \
-		  src/Client.cpp
-		  src/Message.cpp
+		  src/Client.cpp \
+		  src/Message.cpp \
+		  src/Commands/Commands.cpp
 OBJS	= $(SRCS:.cpp=.o)
 
 GREEN = \033[0;32m

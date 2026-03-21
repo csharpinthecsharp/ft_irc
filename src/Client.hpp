@@ -12,11 +12,26 @@ class Client {
         char _serv[NI_MAXSERV];
         socklen_t _clientSize;
         sockaddr_in _client;
+        bool _authenticated;
+        bool _registered;
+        std::string _nick;
+        std::string _username;
+        std::string _realname;
+
     public:
         Client( int sock_fd, sockaddr_in client, socklen_t client_size );
         ~Client();
 
         void fillNameInfo();
+        bool isAuthenticated() const;
+        bool isRegistered();
+        void setAuthenticated(bool value);
+        void setRegistered(bool value);
+        void sendReply(const std::string& reply);
+        void setNick(const std::string& nick);
+        void setUsername(const std::string& username);
+        void setRealname(const std::string& realname);
+        const std::string& getNick() const;
 };
 
 #endif

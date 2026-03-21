@@ -26,7 +26,6 @@ void Parser::checkArguments( const std::string& port, const std::string& psswrd 
         throw WrongPasswordException();
 }
 
-
 unsigned int Parser::getPort() const 
 {
     return this->_port;
