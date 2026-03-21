@@ -21,6 +21,9 @@ Message::Message(std::string input) : _raw(input) {
     if (ss >> word) {
         if (word[0] == ':') {
             _prefix = word.substr(1);
+            if (!(ss >> word))
+                return;
+            _prefix = word.substr(1);
             if (!(ss >> word))  return;
         }
         _command = word;
