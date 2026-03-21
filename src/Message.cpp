@@ -1,8 +1,8 @@
 #include "Message.hpp"
 
 Message::Message(std::string input) : _raw(input) {
-    if (input.size() > 512) {
-        input = input.substr(0, 512);
+    if (input.size() > IRCMAXBUFFSIZE_MSG) {
+        input = input.substr(0, IRCMAXBUFFSIZE_MSG);
     }
     size_t last = input.find_last_not_of("\r\n");
     if (last != std::string::npos) {

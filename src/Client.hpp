@@ -18,6 +18,9 @@ class Client {
         std::string _username;
         std::string _realname;
 
+        std::string buffer; // Le buffer client n'a pas de limite
+        // IIl doit pouvoir contenir plusieurs messages a la fois.
+        // La delimiation pour chaque message est \r\n.
     public:
         Client( int sock_fd, sockaddr_in client, socklen_t client_size );
         ~Client();

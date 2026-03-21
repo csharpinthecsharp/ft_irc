@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#define IRCMAXBUFFSIZE_MSG 512
 
 class Message
 {
@@ -14,7 +15,7 @@ class Message
         std::vector<std::string> _params;
         std::string _message;
         std::string _prefix;
-        
+
     public:
         Message(std::string input);
         ~Message();

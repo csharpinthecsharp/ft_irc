@@ -15,7 +15,10 @@ _registered(false)
     this->fillNameInfo();
 }
 
-Client::~Client() {}
+Client::~Client() 
+{
+    close(this->_sock_fd);
+}
 
 
 void Client::fillNameInfo() 

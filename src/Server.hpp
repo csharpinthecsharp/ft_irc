@@ -7,8 +7,11 @@
 #include <netinet/ip.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <vector>
+#include <map>
 #include "Client.hpp"
+#include "Message.hpp"
+#include <poll.h>
+#include <vector>
 #define FAIL -1
 #define SUCCESS 0
 
@@ -19,7 +22,7 @@ class Server
     private:
         int _listen_fd;
         unsigned int _loc_port;
-        std::vector<Client> _clients;
+        std::map<int, Client> _clients;
     public:
         Server( const Parser& parser );
         ~Server();
