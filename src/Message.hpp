@@ -13,6 +13,8 @@ class Message
         std::string _command;
         std::vector<std::string> _params;
         std::string _message;
+        std::string _prefix;
+        
     public:
         Message(std::string input);
         ~Message();

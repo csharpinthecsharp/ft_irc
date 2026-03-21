@@ -1,6 +1,9 @@
 #include "Message.hpp"
 
 Message::Message(std::string input) : _raw(input) {
+    if (input.size() > 512) {
+        input = input.substr(0, 512);
+    }
     size_t last = input.find_last_not_of("\r\n");
     if (last != std::string::npos) {
         input = input.substr(0, last + 1);
@@ -17,15 +20,14 @@ Message::Message(std::string input) : _raw(input) {
 
     if (ss >> word) {
         if (word[0] == ':') {
-            if (!(ss >> word))
-                return;
+            _prefix = word.substr(1);
+            if (!(ss >> word))  return;
         }
         _command = word;
         for (size_t i = 0; i < _command.size(); ++i) {
             _command[i] = std::toupper(_command[i]);
         }
     }
-
     while (ss >> word) {
         _params.push_back(word);
     }
