@@ -1,7 +1,6 @@
 #include "Client.hpp"
 
-Client::Client() {
-}
+Client::Client() {}
 
 Client::Client( int sock_fd, sockaddr_in client, socklen_t client_size ) 
 : _sock_fd(0),
@@ -11,6 +10,9 @@ _clientSize(0),
 _client(),
 _authenticated(false),
 _registered(false),
+_nick(""),
+_username(""),
+_realname(""),
 _buffer("")
 {
     this->_sock_fd = sock_fd;
@@ -19,9 +21,7 @@ _buffer("")
     this->fillNameInfo();
 }
 
-Client::~Client() 
-{
-}
+Client::~Client() {}
 
 
 void Client::fillNameInfo() 
@@ -35,7 +35,7 @@ void Client::fillNameInfo()
     if (res != SUCCESS)
         throw GettingNameInfoFailedException();    
     else
-        std::cout << this->_host << " connect on " << this->_serv << std::endl;
+        std::cout << "🔎 " << this->_host << " is now connected to " << this->_serv << std::endl;
     return ;
         
 }
@@ -71,13 +71,11 @@ void Client::handleUserInfos()
     realname = realname.substr(0, realname.find("\r\n"));
     this->setRealname(user);
 
-    std::cout << "NICK: " << this->_nick << std::endl;
-    std::cout << "USER: " << this->_username << std::endl;
-    std::cout << "REALNAME: " << this->_realname << std::endl;
-
     std::string welcome = ":" + std::string(this->_serv) + " 001 " + nick + " :Welcome\r\n";
     send(_sock_fd, welcome.c_str(), welcome.size(), 0);
+
     _buffer.clear();
+    std::cout << *this << std::endl;
 }
 
 
@@ -92,37 +90,62 @@ void Client::handleBufferData()
         this->handleUserInfos();
 }
 
-
-bool Client::isAuthenticated() const {
-    return this->_authenticated;
+bool Client::isAuthenticated() const 
+{
+    return (this->_authenticated);
 }
 
-bool Client::isRegistered() const {
-    return this->_registered;
+bool Client::isRegistered() const 
+{
+    return (this->_registered);
 }
 
-void Client::setAuthenticated(bool value) {
+void Client::setAuthenticated(bool value) 
+{
     this->_authenticated = value;
 }
 
-void Client::setRegistered(bool value) {
+void Client::setRegistered(bool value) 
+{
     this->_registered = value;
 }
 
-void Client::setNick(const std::string& nick) {
+void Client::setNick(const std::string& nick) 
+{
     this->_nick = nick;
 }
 
-void Client::setUsername(const std::string& username) {
+void Client::setUsername(const std::string& username) 
+{
     this->_username = username;
 }
 
-void Client::setRealname(const std::string& realname) {
+void Client::setRealname(const std::string& realname) 
+{
     this->_realname = realname;
 }
 
-const std::string& Client::getNick() const {
-    return this->_nick;
+const std::string& Client::getNick() const 
+{
+    return (this->_nick);
+}
+
+const std::string& Client::getUsername() const 
+{
+    return (this->_username);
+}
+
+const std::string& Client::getRealname() const {
+    return (this->_realname);
 }
 
 void Client::sendReply(const std::string& reply) { (void)reply; return ; }
+
+std::ostream& operator<<( std::ostream& os, const Client& other ) {
+    os << "=== New user infos ===" << std::endl;
+    os << "Nick: " << other.getNick() << std::endl;
+    os << "User: " << other.getUsername() << std::endl;
+    os << "Realname: " << other.getRealname() << std::endl;
+    os << "======================";
+    return (os);
+}

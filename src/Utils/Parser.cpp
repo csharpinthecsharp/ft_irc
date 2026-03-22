@@ -28,16 +28,16 @@ void Parser::checkArguments( const std::string& port, const std::string& psswrd 
 
 unsigned int Parser::getPort() const 
 {
-    return this->_port;
+    return (this->_port);
 }
 std::string Parser::getPsswrd() const
 {
-    return this->_psswrd;
+    return (this->_psswrd);
 }
 
 std::ostream &operator<<( std::ostream& os, const Parser& other ) 
 {
     os << "Port: " << other.getPort() << std::endl;
     os << "Psswrd: " << other.getPsswrd();
-    return os;
+    return (os);
 }
