@@ -28,6 +28,9 @@ class Client {
 
         void appendBuffer( const std::string& buffer );
         void handleBufferData();
+        void handleCAPLS();
+        void handleCAPEND();
+        void handleUserInfos();
 
         void fillNameInfo();
         bool isAuthenticated() const;

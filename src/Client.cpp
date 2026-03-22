@@ -45,10 +45,52 @@ void Client::appendBuffer( const std::string& buffer )
     this->_buffer.append(buffer);
 }
 
+void Client::handleCAPLS()
+{
+    std::string reply = "CAP * LS :\r\n";
+    send(_sock_fd, reply.c_str(), reply.size(), 0);
+    _buffer.clear();
+}
+
+void Client::handleCAPEND()
+{
+    _buffer.clear();
+}
+
+void Client::handleUserInfos()
+{
+    std::string nick = _buffer.substr(_buffer.find("NICK ") + 5);
+    nick = nick.substr(0, nick.find("\r\n"));
+    this->setNick(nick);
+
+    std::string user = _buffer.substr(_buffer.find("USER") + 5);
+    user = user.substr(0, user.find(" "));
+    this->setUsername(user);
+
+    std::string realname = _buffer.substr(_buffer.find(":") + 1);
+    realname = realname.substr(0, realname.find("\r\n"));
+    this->setRealname(user);
+
+    std::cout << "NICK: " << this->_nick << std::endl;
+    std::cout << "USER: " << this->_username << std::endl;
+    std::cout << "REALNAME: " << this->_realname << std::endl;
+
+    std::string welcome = ":" + std::string(this->_serv) + " 001 " + nick + " :Welcome\r\n";
+    send(_sock_fd, welcome.c_str(), welcome.size(), 0);
+    _buffer.clear();
+}
+
+
 void Client::handleBufferData()
 {
-    std::cout << "My buffer is containing: " << _buffer << std::endl;
-} 
+    if (_buffer.find("CAP LS") != std::string::npos)
+        this->handleCAPLS();
+    else if (_buffer.find("CAP END") != std::string::npos)
+        this->handleCAPEND();
+    else if (_buffer.find("NICK ") != std::string::npos 
+          && _buffer.find("USER ") != std::string::npos)
+        this->handleUserInfos();
+}
 
 
 bool Client::isAuthenticated() const {
