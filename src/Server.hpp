@@ -12,6 +12,7 @@
 #include "Message.hpp"
 #include <poll.h>
 #include <vector>
+#include "Commands/Commands.hpp"
 #define FAIL -1
 #define SUCCESS 0
 
@@ -31,6 +32,7 @@ class Server
         void markSocket() const;
 
         void open();
+        void dispatch(const Message& msg, Client& client);
 };
 
 #endif

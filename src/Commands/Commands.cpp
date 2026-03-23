@@ -21,20 +21,26 @@ void handlePass(const Message& msg, Client& client, const std::string& serverPas
     client.setAuthenticated(true);
 }
 
-void handleNick(const Message& msg, Client& client)
+void handleNick(const Message& msg, Client& client, std::map<int, Client>& clients)
 {
-    if (!client.isAuthenticated()) 
-    {
+    if (!client.isAuthenticated()) {
         client.sendReply(":ircserv 451 * :You have not registered");
-        return ;
+        return;
     }
-    if (msg.getParams().empty()) 
-    {
+    if (msg.getParams().empty()) {
         client.sendReply(":ircserv 431 * :No nickname given");
-        return ;
+        return;
     }
-    client.setNick(msg.getParams()[0]);
-    // todo : verifier si le nickname n'est pas deja pris dans le serv
+    std::string newNick = msg.getParams()[0];
+    std::map<int, Client>::iterator it;
+    for (it = clients.begin(); it != clients.end(); it++)
+    {
+        if (it->second.getNick() == newNick) {
+            client.sendReply(":ircserv 433 * " + newNick + " :Nickname already in use");
+            return;
+        }
+    }
+    client.setNick(newNick);
 }
 
 void handleUser(const Message& msg, Client& client) 

@@ -31,14 +31,15 @@ class Client {
 
         void fillNameInfo();
         void appendBuffer( const std::string& buffer );
+        int getSockFd() const;
         
         bool isAuthenticated() const;
         bool isRegistered() const;
         void setAuthenticated(bool value);
         void setRegistered(bool value);
         void sendReply(const std::string& reply);
-        void dispatch(const Message& msg);
         void handleBufferData();
+        void eraseBuffer(size_t len);
 
         void setNick(const std::string& nick);
         void setUsername(const std::string& username);
@@ -46,6 +47,7 @@ class Client {
         const std::string& getNick() const;
         const std::string& getUsername() const;
         const std::string& getRealname() const;
+        const std::string& getBuffer() const;
 };
 
 std::ostream& operator<<( std::ostream& os, const Client& other );

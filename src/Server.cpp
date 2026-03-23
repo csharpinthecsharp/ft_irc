@@ -83,8 +83,16 @@ void Server::open() {
                 if (data > 0)
                 {
                     buffer[data] = '\0';
-                    _clients[all_poll[i].fd].appendBuffer(buffer);
-                    _clients[all_poll[i].fd].handleBufferData();
+                    Client& c = _clients[all_poll[i].fd];
+                    c.appendBuffer(buffer);
+                    size_t pos;
+                while ((pos = c.getBuffer().find("\r\n")) != std::string::npos)
+                    {
+                        std::string line = c.getBuffer().substr(0, pos);
+                        c.eraseBuffer(pos + 2);
+                    if (!line.empty())
+                        dispatch(Message(line), c);
+                    }
                 }
                 else
                 {
@@ -98,4 +106,23 @@ void Server::open() {
     }
 }
 
+void Server::dispatch(const Message& msg, Client& client)
+{
+    const std::string& cmd = msg.getCommand();
 
+    if (cmd == "CAP")          
+        handleCap(msg, client);
+    else if (cmd == "PASS")    
+        handlePass(msg, client, _password);
+    else if (cmd == "NICK")    
+        handleNick(msg, client, _clients);
+    else if (cmd == "USER")    
+        handleUser(msg, client);
+    else if (cmd == "PING")
+    {
+        std::string pong = "PONG :" + msg.getMessage() + "\r\n";
+        send(client.getSockFd(), pong.c_str(), pong.size(), 0);
+    }
+    else if (cmd == "QUIT")    
+        close(client.getSockFd());
+}

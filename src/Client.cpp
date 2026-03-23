@@ -47,43 +47,6 @@ void Client::appendBuffer( const std::string& buffer )
     this->_buffer.append(buffer);
 }
 
-void Client::handleBufferData()
-{
-    size_t pos;
-    while ((pos = _buffer.find("\r\n")) != std::string::npos)
-    {
-        std::string line = _buffer.substr(0, pos);
-        _buffer.erase(0, pos + 2);
-        if (line.empty()) continue;
-
-        Message msg(line);
-        dispatch(msg);
-    }
-}
-
-void Client::dispatch(const Message& msg)
-{
-    const std::string& cmd = msg.getCommand();
-
-    if (cmd == "CAP")
-        handleCap(msg, *this);   
-    else if (cmd == "PASS")   
-        handlePass(msg, *this, _serverPassword);
-    else if (cmd == "NICK")
-        handleNick(msg, *this);
-    else if (cmd == "USER")   
-        handleUser(msg, *this);
-    else if (cmd == "PING")
-    {
-        std::string pong = "PONG :" + msg.getMessage() + "\r\n";
-        send(_sock_fd, pong.c_str(), pong.size(), 0);
-    }
-    else if (cmd == "QUIT")
-    {
-        close(_sock_fd);
-    }
-}
-
 bool Client::isAuthenticated() const 
 {
     return (this->_authenticated);
@@ -146,4 +109,19 @@ std::ostream& operator<<( std::ostream& os, const Client& other ) {
     os << "Realname: " << other.getRealname() << std::endl;
     os << "======================";
     return (os);
+}
+
+const std::string& Client::getBuffer() const 
+{ 
+    return _buffer; 
+}
+
+void Client::eraseBuffer(size_t len) 
+{ 
+    _buffer.erase(0, len); 
+}
+
+int Client::getSockFd() const 
+{ 
+    return _sock_fd; 
 }
