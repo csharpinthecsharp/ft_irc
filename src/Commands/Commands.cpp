@@ -63,3 +63,11 @@ void handleUser(const Message& msg, Client& client)
         client.sendReply(":ircserv 001 " + client.getNick() + " :Welcome to the server!");
     }
 }
+
+void handleCap(const Message& msg, Client& client)
+{
+    if (msg.getParams().empty()) 
+        return;
+    if (msg.getParams()[0] == "LS")
+        client.sendReply("CAP * LS :");
+}

@@ -66,18 +66,13 @@ void Client::dispatch(const Message& msg)
     const std::string& cmd = msg.getCommand();
 
     if (cmd == "CAP")
-    {
-        if (!msg.getParams().empty() && msg.getParams()[0] == "LS")
-        {
-            std::string reply = "CAP * LS :\r\n"; // liste vide donc aucune extension
-            send(_sock_fd, reply.c_str(), reply.size(), 0);
-        }
-    else if (!msg.getParams().empty() && msg.getParams()[0] == "END")
-        return; // rien a faire
-    }
-    else if (cmd == "PASS")   handlePass(msg, *this, _serverPassword);
-    else if (cmd == "NICK")   handleNick(msg, *this);
-    else if (cmd == "USER")   handleUser(msg, *this);
+        handleCap(msg, *this);   
+    else if (cmd == "PASS")   
+        handlePass(msg, *this, _serverPassword);
+    else if (cmd == "NICK")
+        handleNick(msg, *this);
+    else if (cmd == "USER")   
+        handleUser(msg, *this);
     else if (cmd == "PING")
     {
         std::string pong = "PONG :" + msg.getMessage() + "\r\n";
