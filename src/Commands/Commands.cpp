@@ -5,17 +5,17 @@ void handlePass(const Message& msg, Client& client, const std::string& serverPas
 {
     if (client.isAuthenticated()) 
     {
-        client.sendReply("462 :You are already registered");
+        client.sendReply(":ircserv 462 * :You are already registered");
         return ;
     }
     if (msg.getParams().empty()) 
     {
-        client.sendReply("461 :Not enough parameters");
+        client.sendReply(":ircserv 461 * :Not enough parameters");
         return ;
     }
     if (msg.getParams()[0] != serverPassword) 
     {
-        client.sendReply("464 :Incorrect password try again");
+        client.sendReply(":ircserv 464 * :Incorrect password try again");
         return ;
     }
     client.setAuthenticated(true);
@@ -25,12 +25,12 @@ void handleNick(const Message& msg, Client& client)
 {
     if (!client.isAuthenticated()) 
     {
-        client.sendReply("451 :You have not registered");
+        client.sendReply(":ircserv 451 * :You have not registered");
         return ;
     }
     if (msg.getParams().empty()) 
     {
-        client.sendReply("431 :No nickname given");
+        client.sendReply(":ircserv 431 * :No nickname given");
         return ;
     }
     client.setNick(msg.getParams()[0]);
@@ -41,17 +41,17 @@ void handleUser(const Message& msg, Client& client)
 {
     if (!client.isAuthenticated()) 
     {
-        client.sendReply("451 :You have not registered");
+        client.sendReply(":ircserv 451 * :You have not registered");
         return ;
     }
     if (client.isRegistered()) 
     {
-        client.sendReply("462 :You are already registered");
+        client.sendReply(":ircserv 462 * :You are already registered");
         return ;
     }
     if (msg.getParams().size() < 3 || msg.getMessage().empty()) 
     {
-        client.sendReply("461 : User not enough parameters");
+        client.sendReply(":ircserv 461 * :User not enough parameters");
         return ;
     }
     client.setUsername(msg.getParams()[0]);
