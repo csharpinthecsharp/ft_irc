@@ -2,6 +2,7 @@
 
 Server::Server( const Parser& parser ) 
 : _listen_fd(0),
+_password(parser.getPsswrd()),
 _clients()
 {
     this->_loc_port = parser.getPort();
@@ -66,7 +67,7 @@ void Server::open() {
                 if (client_fd == FAIL)
                     throw ClientSocketCreationFailedException();
 
-                _clients[client_fd] = Client(client_fd, client, clientSize);
+                _clients[client_fd] = Client(client_fd, client, clientSize, _password);
 
                 struct pollfd c_poll;
                 c_poll.fd = client_fd;

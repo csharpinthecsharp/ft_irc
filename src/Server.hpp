@@ -22,6 +22,7 @@ class Server
     private:
         int _listen_fd;
         unsigned int _loc_port;
+        std::string _password;
         std::map<int, Client> _clients;
     public:
         Server( const Parser& parser );

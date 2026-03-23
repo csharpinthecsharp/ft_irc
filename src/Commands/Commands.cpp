@@ -1,4 +1,5 @@
 #include "Commands.hpp"
+#include "../Client.hpp"
 
 void handlePass(const Message& msg, Client& client, const std::string& serverPassword)
 {
@@ -20,7 +21,7 @@ void handlePass(const Message& msg, Client& client, const std::string& serverPas
     client.setAuthenticated(true);
 }
 
-void handleNick(const Message& msg, Client& client) 
+void handleNick(const Message& msg, Client& client)
 {
     if (!client.isAuthenticated()) 
     {
@@ -59,6 +60,6 @@ void handleUser(const Message& msg, Client& client)
     if (!client.getNick().empty()) 
     {
         client.setRegistered(true);
-        client.sendReply("001" + client.getNick() + " :Welcome to the server!");
+        client.sendReply(":ircserv 001 " + client.getNick() + " :Welcome to the server!");
     }
 }

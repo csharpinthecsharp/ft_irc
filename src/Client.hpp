@@ -2,6 +2,7 @@
 #define CLIENT_HPP
 
 #include "Server.hpp"
+#include "Message.hpp"
 #include "unistd.h"
 #include <iostream>
 
@@ -19,27 +20,25 @@ class Client {
         std::string _nick;
         std::string _username;
         std::string _realname;
+        std::string _serverPassword;
         
         std::string _buffer;
 
     public:
         Client();
-        Client( int sock_fd, sockaddr_in client, socklen_t client_size );
+        Client(int sock_fd, sockaddr_in client, socklen_t client_size, const std::string& password);
         ~Client();
 
         void fillNameInfo();
         void appendBuffer( const std::string& buffer );
-        void handleBufferData();
-
-        void handleCAPLS();
-        void handleCAPEND();
-        void handleUserInfos();
         
         bool isAuthenticated() const;
         bool isRegistered() const;
         void setAuthenticated(bool value);
         void setRegistered(bool value);
         void sendReply(const std::string& reply);
+        void dispatch(const Message& msg);
+        void handleBufferData();
 
         void setNick(const std::string& nick);
         void setUsername(const std::string& username);

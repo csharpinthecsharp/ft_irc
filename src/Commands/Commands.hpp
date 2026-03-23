@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../Message.hpp"
-#include "../Client.hpp"
+
+class Client;
 
 void handlePass(const Message& msg, Client& client, const  std::string& serverPassword);
 void handleNick(const Message& msg, Client& client);

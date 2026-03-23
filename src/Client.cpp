@@ -1,8 +1,9 @@
 #include "Client.hpp"
+#include "Commands/Commands.hpp"
 
 Client::Client() {}
 
-Client::Client( int sock_fd, sockaddr_in client, socklen_t client_size ) 
+Client::Client( int sock_fd, sockaddr_in client, socklen_t client_size, const std::string& password) 
 : _sock_fd(0),
 _host(),
 _serv(),
@@ -13,6 +14,7 @@ _registered(false),
 _nick(""),
 _username(""),
 _realname(""),
+_serverPassword(password),
 _buffer("")
 {
     this->_sock_fd = sock_fd;
@@ -45,49 +47,46 @@ void Client::appendBuffer( const std::string& buffer )
     this->_buffer.append(buffer);
 }
 
-void Client::handleCAPLS()
-{
-    std::string reply = "CAP * LS :\r\n";
-    send(_sock_fd, reply.c_str(), reply.size(), 0);
-    _buffer.clear();
-}
-
-void Client::handleCAPEND()
-{
-    _buffer.clear();
-}
-
-void Client::handleUserInfos()
-{
-    std::string nick = _buffer.substr(_buffer.find("NICK ") + 5);
-    nick = nick.substr(0, nick.find("\r\n"));
-    this->setNick(nick);
-
-    std::string user = _buffer.substr(_buffer.find("USER") + 5);
-    user = user.substr(0, user.find(" "));
-    this->setUsername(user);
-
-    std::string realname = _buffer.substr(_buffer.find(":") + 1);
-    realname = realname.substr(0, realname.find("\r\n"));
-    this->setRealname(user);
-
-    std::string welcome = ":" + std::string(this->_serv) + " 001 " + nick + " :Welcome\r\n";
-    send(_sock_fd, welcome.c_str(), welcome.size(), 0);
-
-    _buffer.clear();
-    std::cout << *this << std::endl;
-}
-
-
 void Client::handleBufferData()
 {
-    if (_buffer.find("CAP LS") != std::string::npos)
-        this->handleCAPLS();
-    else if (_buffer.find("CAP END") != std::string::npos)
-        this->handleCAPEND();
-    else if (_buffer.find("NICK ") != std::string::npos 
-          && _buffer.find("USER ") != std::string::npos)
-        this->handleUserInfos();
+    size_t pos;
+    while ((pos = _buffer.find("\r\n")) != std::string::npos)
+    {
+        std::string line = _buffer.substr(0, pos);
+        _buffer.erase(0, pos + 2);
+        if (line.empty()) continue;
+
+        Message msg(line);
+        dispatch(msg);
+    }
+}
+
+void Client::dispatch(const Message& msg)
+{
+    const std::string& cmd = msg.getCommand();
+
+    if (cmd == "CAP")
+    {
+        if (!msg.getParams().empty() && msg.getParams()[0] == "LS")
+        {
+            std::string reply = "CAP * LS :\r\n"; // liste vide donc aucune extension
+            send(_sock_fd, reply.c_str(), reply.size(), 0);
+        }
+    else if (!msg.getParams().empty() && msg.getParams()[0] == "END")
+        return; // rien a faire
+    }
+    else if (cmd == "PASS")   handlePass(msg, *this, _serverPassword);
+    else if (cmd == "NICK")   handleNick(msg, *this);
+    else if (cmd == "USER")   handleUser(msg, *this);
+    else if (cmd == "PING")
+    {
+        std::string pong = "PONG :" + msg.getMessage() + "\r\n";
+        send(_sock_fd, pong.c_str(), pong.size(), 0);
+    }
+    else if (cmd == "QUIT")
+    {
+        close(_sock_fd);
+    }
 }
 
 bool Client::isAuthenticated() const 
@@ -139,7 +138,11 @@ const std::string& Client::getRealname() const {
     return (this->_realname);
 }
 
-void Client::sendReply(const std::string& reply) { (void)reply; return ; }
+void Client::sendReply(const std::string& reply) 
+{
+    std::string msg = reply + "\r\n";
+    send(_sock_fd, msg.c_str(), msg.size(), 0);
+}
 
 std::ostream& operator<<( std::ostream& os, const Client& other ) {
     os << "=== New user infos ===" << std::endl;
