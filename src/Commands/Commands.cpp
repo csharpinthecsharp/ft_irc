@@ -89,12 +89,14 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
         channels[channelName] = Channel(channelName);
 
     Channel& channel = channels[channelName];
+
     if (channel.isMember(&client))
         return;
     channel.addMember(&client);
 
     if (channel.getMembers().size() == 1) // premier membre est operator
         channel.addOperator(client.getSockFd());
+
     std::string joinMsg = ":" + client.getNick() + "!~" + client.getUsername() + "@localhost JOIN " + channelName;
     channel.broadcast(joinMsg); // notifier le channel des nouveaux
 
@@ -102,6 +104,7 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
         client.sendReply(":ircserv 332 " + client.getNick() + " " + channelName + " :" + channel.getTopic());
     else    
         client.sendReply(":ircserv 331 " + client.getNick() + " " + channelName + " :No topic is set");
+
     std::string namesList = ":ircserv 353 " + client.getNick() + " = " + channelName + " :";
     const std::map<int, Client*>& members = channel.getMembers();
     std::map<int, Client*>::const_iterator it;
