@@ -83,6 +83,7 @@ void Server::open() {
                 if (data > 0)
                 {
                     buffer[data] = '\0';
+                    std::cout << buffer << std::endl;
                     Client& c = _clients[all_poll[i].fd];
                     c.appendBuffer(buffer);
                     size_t pos;
@@ -109,12 +110,11 @@ void Server::open() {
 void Server::dispatch(const Message& msg, Client& client)
 {
     const std::string& cmd = msg.getCommand();
-
     if (cmd == "CAP")          
         handleCap(msg, client);
     else if (cmd == "PASS")    
         handlePass(msg, client, _password);
-    else if (cmd == "NICK")    
+    else if (cmd == "NICK")
         handleNick(msg, client, _clients);
     else if (cmd == "USER")    
         handleUser(msg, client);

@@ -76,4 +76,6 @@ void handleCap(const Message& msg, Client& client)
         return;
     if (msg.getParams()[0] == "LS")
         client.sendReply("CAP * LS :");
+    else if (msg.getParams()[0] == "END")
+        client.eraseBuffer(client.getBuffer().size());
 }
