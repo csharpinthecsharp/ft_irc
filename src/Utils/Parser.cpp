@@ -1,7 +1,5 @@
 #include "Parser.hpp"
 
-const std::string server_password = "1234";
-
 Parser::Parser() {}
 Parser::Parser( std::string port, std::string psswrd ) :
 _port(0), _psswrd("")
@@ -22,8 +20,9 @@ void Parser::checkArguments( const std::string& port, const std::string& psswrd 
         if (!isdigit(port[i]))
             throw WrongDigitPortException();
     }
-    if (psswrd != server_password)
+    if (psswrd.empty())
         throw WrongPasswordException();
+
 }
 
 unsigned int Parser::getPort() const 

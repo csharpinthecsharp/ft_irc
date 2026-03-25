@@ -5,28 +5,28 @@ void handlePass(const Message& msg, Client& client, const std::string& serverPas
 {
     if (client.isAuthenticated()) 
     {
-        client.sendReply(":ircserv 462 * :You are already registered");
-        return ;
+        client.sendReply(":ircserv 462 * :You are already authenticated");
+        return;
     }
+
     if (msg.getParams().empty()) 
     {
         client.sendReply(":ircserv 461 * :Not enough parameters");
-        return ;
+        return;
     }
+
     if (msg.getParams()[0] != serverPassword) 
     {
-        client.sendReply(":ircserv 464 * :Incorrect password try again");
-        return ;
+        client.sendReply(":ircserv 464 * :Password incorrect");
+        client.shutdown();
+        return;
     }
     client.setAuthenticated(true);
+    client.tryToRegister();
 }
 
 void handleNick(const Message& msg, Client& client, std::map<int, Client>& clients)
 {
-    if (!client.isAuthenticated()) {
-        client.sendReply(":ircserv 451 * :You have not registered");
-        return;
-    }
     if (msg.getParams().empty()) {
         client.sendReply(":ircserv 431 * :No nickname given");
         return;
@@ -41,20 +41,11 @@ void handleNick(const Message& msg, Client& client, std::map<int, Client>& clien
         }
     }
     client.setNick(newNick);
+    client.tryToRegister();
 }
 
 void handleUser(const Message& msg, Client& client) 
 {
-    if (!client.isAuthenticated()) 
-    {
-        client.sendReply(":ircserv 451 * :You have not registered");
-        return ;
-    }
-    if (client.isRegistered()) 
-    {
-        client.sendReply(":ircserv 462 * :You are already registered");
-        return ;
-    }
     if (msg.getParams().size() < 3 || msg.getMessage().empty()) 
     {
         client.sendReply(":ircserv 461 * :User not enough parameters");
@@ -63,11 +54,7 @@ void handleUser(const Message& msg, Client& client)
     client.setUsername(msg.getParams()[0]);
     client.setRealname(msg.getMessage());
 
-    if (!client.getNick().empty()) 
-    {
-        client.setRegistered(true);
-        client.sendReply(":ircserv 001 " + client.getNick() + " :Welcome to the server!");
-    }
+    client.tryToRegister();
 }
 
 void handleCap(const Message& msg, Client& client)

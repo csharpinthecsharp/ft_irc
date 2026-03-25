@@ -9,7 +9,7 @@ _host(),
 _serv(),
 _clientSize(0),
 _client(),
-_authenticated(true),
+_authenticated(false),
 _registered(false),
 _nick(""),
 _username(""),
@@ -41,6 +41,31 @@ void Client::fillNameInfo()
     return ;
         
 }
+
+void Client::shutdown() {
+    close(this->_sock_fd);
+    this->_sock_fd = -1;
+}
+
+void Client::tryToRegister()
+{
+    if (this->isRegistered())
+        return;
+
+    if (this->getNick().empty() || !this->getUsername().empty())
+        return;
+
+    if (!this->_serverPassword.empty() && !this->isAuthenticated())
+    {
+        this->sendReply(":ircserv 464 * :Password required");
+        this->shutdown();
+        return;
+    }
+
+    this->setRegistered(true);
+    this->sendReply(":ircserv 001 " + this->getNick() + " :Welcome to the server!");
+}
+
 
 void Client::appendBuffer( const std::string& buffer )
 {

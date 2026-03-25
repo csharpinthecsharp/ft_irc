@@ -29,6 +29,9 @@ class Client {
         Client(int sock_fd, sockaddr_in client, socklen_t client_size, const std::string& password);
         ~Client();
 
+        void shutdown();
+        void tryToRegister();
+
         void fillNameInfo();
         void appendBuffer( const std::string& buffer );
         int getSockFd() const;
