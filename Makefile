@@ -7,7 +7,8 @@ SRCS	= src/Utils/Parser.cpp \
 		  src/Server.cpp \
 		  src/Client.cpp \
 		  src/Message.cpp \
-		  src/Commands/Commands.cpp
+		  src/Commands/Commands.cpp \
+		  src/Channel/Channel.cpp
 OBJS	= $(SRCS:.cpp=.o)
 
 GREEN = \033[0;32m

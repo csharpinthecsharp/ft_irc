@@ -123,6 +123,8 @@ void Server::dispatch(const Message& msg, Client& client)
         std::string pong = "PONG :" + msg.getMessage() + "\r\n";
         send(client.getSockFd(), pong.c_str(), pong.size(), 0);
     }
+    else if (cmd == "JOIN")
+        handleJoin(msg, client, _channels);
     else if (cmd == "QUIT")    
         close(client.getSockFd());
 }

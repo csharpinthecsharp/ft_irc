@@ -13,6 +13,7 @@
 #include <poll.h>
 #include <vector>
 #include "Commands/Commands.hpp"
+#include "Channel/Channel.hpp"
 #define FAIL -1
 #define SUCCESS 0
 
@@ -25,6 +26,7 @@ class Server
         unsigned int _loc_port;
         std::string _password;
         std::map<int, Client> _clients;
+        std::map<std::string, Channel> _channels;
     public:
         Server( const Parser& parser );
         ~Server();
