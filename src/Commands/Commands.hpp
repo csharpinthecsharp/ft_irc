@@ -11,3 +11,4 @@ void handleNick(const Message& msg, Client& client, std::map<int, Client>& clien
 void handleUser(const Message& msg, Client& client);
 void handleCap(const Message& msg, Client& client);
 void handleJoin(const Message& msg, Client& client, std::map<std::string, Channel>& channels);
+void handleTopic(const Message& msg, Client& client, std::map<std::string, Channel>& channels);

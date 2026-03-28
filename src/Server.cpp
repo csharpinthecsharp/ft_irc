@@ -135,6 +135,8 @@ bool Server::dispatch(const Message& msg, Client& client)
     }
     else if (cmd == "JOIN")
         handleJoin(msg, client, _channels);
+    else if (cmd == "TOPIC")
+        handleTopic(msg, client, _channels);
     else if (cmd == "QUIT")
     {
         client.sendReply(":ircserv ERROR :Goodbye");    

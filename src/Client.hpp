@@ -3,6 +3,7 @@
 
 #include "Server.hpp"
 #include "Message.hpp"
+#include "Channel/Channel.hpp"
 #include "unistd.h"
 #include <iostream>
 
@@ -21,6 +22,8 @@ class Client {
         std::string _username;
         std::string _realname;
         std::string _serverPassword;
+
+        Channel _curr_channel;
         
         std::string _buffer;
 
@@ -47,10 +50,12 @@ class Client {
         void setNick(const std::string& nick);
         void setUsername(const std::string& username);
         void setRealname(const std::string& realname);
+        void setChannel(const Channel& channel );
         const std::string& getNick() const;
         const std::string& getUsername() const;
         const std::string& getRealname() const;
         const std::string& getBuffer() const;
+        const Channel& getChannel() const;
 };
 
 std::ostream& operator<<( std::ostream& os, const Client& other );

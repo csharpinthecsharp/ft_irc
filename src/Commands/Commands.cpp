@@ -99,6 +99,7 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
 
     std::string joinMsg = ":" + client.getNick() + "!~" + client.getUsername() + "@localhost JOIN " + channelName;
     channel.broadcast(joinMsg); // notifier le channel des nouveaux
+    client.setChannel(channel);
 
     if (!channel.getTopic().empty())
         client.sendReply(":ircserv 332 " + client.getNick() + " " + channelName + " :" + channel.getTopic());
@@ -117,3 +118,56 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
     client.sendReply(namesList);
     client.sendReply(":ircserv 366 " + client.getNick() + " " + channelName + " :End of /NAMES list");
 }   
+
+void handleTopic(const Message& msg, Client& client, std::map<std::string, Channel>& channels)
+{
+    if (!client.isRegistered())
+    {
+        client.sendReply(":ircserv 451 * :You have not registered");
+        return;
+    }
+    if (msg.getParams().empty())
+    {
+        client.sendReply(":ircserv 461 TOPIC :Not enough parameters");
+        return;
+    }
+
+    std::string channelName = msg.getParams()[0];
+    if (channelName[0] != '#')
+    {
+        client.sendReply(":ircserv 403 " + client.getNick() + " " + channelName + " :No such channel");
+        return;
+    }
+
+    std::map<std::string, Channel>::iterator it = channels.find(channelName);
+    if (it == channels.end())
+    {
+        client.sendReply(":ircserv 403 " + client.getNick() + " " + channelName + " :No such channel");
+        return;
+    }
+
+    Channel& channel = it->second;
+    if (!channel.isMember(&client))
+    {
+        client.sendReply(":ircserv 442 " + channelName + " :You're not on that channel");
+        return;
+    }
+
+    if (msg.getMessage().empty())
+    {
+        if (channel.getTopic().empty())
+            client.sendReply(":ircserv 331 " + client.getNick() + " " + channelName + " :No topic is set");
+        else
+            client.sendReply(":ircserv 332 " + client.getNick() + " " + channelName + " :" + channel.getTopic());
+        return;
+    }
+
+    std::string topicMessage = msg.getMessage();
+    if (!channel.isOperator(client.getSockFd()))
+    {
+        client.sendReply(":ircserv 482 " + channelName + " :You're not channel operator");
+        return;
+    }
+    channel.setTopic(topicMessage);
+    channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + topicMessage);
+}
