@@ -117,10 +117,17 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
     }
     client.sendReply(namesList);
     client.sendReply(":ircserv 366 " + client.getNick() + " " + channelName + " :End of /NAMES list");
+<<<<<<< HEAD
 }   
 
 void handleTopic(const Message& msg, Client& client, std::map<std::string, Channel>& channels)
 {
+=======
+}
+
+
+void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels){
+>>>>>>> f67c53c (privmsg qui maaaarcheee)
     if (!client.isRegistered())
     {
         client.sendReply(":ircserv 451 * :You have not registered");
@@ -128,6 +135,7 @@ void handleTopic(const Message& msg, Client& client, std::map<std::string, Chann
     }
     if (msg.getParams().empty())
     {
+<<<<<<< HEAD
         client.sendReply(":ircserv 461 TOPIC :Not enough parameters");
         return;
     }
@@ -170,4 +178,46 @@ void handleTopic(const Message& msg, Client& client, std::map<std::string, Chann
     }
     channel.setTopic(topicMessage);
     channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + topicMessage);
+=======
+        client.sendReply(":ircserv 411 " + client.getNick() + " :No recipient given");
+        return;
+    }
+    if (msg.getMessage().empty())
+    {
+        client.sendReply(":ircserv 412 " + client.getNick() + " :No text to send");
+        return;
+    }
+    
+    std::string target = msg.getParams()[0];
+    std::string fullMsg = ":" + client.getNick() + "!~" + client.getUsername() + "@localhost PRIVMSG " + target + " :" + msg.getMessage();
+
+    if (target[0] == '#')
+    {
+        if (channels.find(target) == channels.end())
+        {
+            client.sendReply(":ircserv 403 " + client.getNick() + " " + target + " :No such channel");
+            return;
+        }
+        Channel& channel = channels[target];
+        if (!channel.isMember(&client))
+        {
+            client.sendReply(":ircserv 404 " + client.getNick() + " " + target + " :Cannot send to channel");
+            return;
+        }
+        channel.broadcast(fullMsg, client.getSockFd());
+    }
+    else
+    {
+        std::map<int, Client>::iterator it;
+        for (it = clients.begin(); it != clients.end(); it++)
+        {
+            if (it->second.getNick() == target)
+            {
+                it->second.sendReply(fullMsg);
+                return;
+            }
+        }
+        client.sendReply(":ircserv 401 " + client.getNick() + " " + target + " :No such nick");
+    }
+>>>>>>> f67c53c (privmsg qui maaaarcheee)
 }
