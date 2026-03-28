@@ -117,17 +117,10 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
     }
     client.sendReply(namesList);
     client.sendReply(":ircserv 366 " + client.getNick() + " " + channelName + " :End of /NAMES list");
-<<<<<<< HEAD
 }   
 
 void handleTopic(const Message& msg, Client& client, std::map<std::string, Channel>& channels)
 {
-=======
-}
-
-
-void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels){
->>>>>>> f67c53c (privmsg qui maaaarcheee)
     if (!client.isRegistered())
     {
         client.sendReply(":ircserv 451 * :You have not registered");
@@ -135,7 +128,6 @@ void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& cl
     }
     if (msg.getParams().empty())
     {
-<<<<<<< HEAD
         client.sendReply(":ircserv 461 TOPIC :Not enough parameters");
         return;
     }
@@ -160,7 +152,6 @@ void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& cl
         client.sendReply(":ircserv 442 " + channelName + " :You're not on that channel");
         return;
     }
-
     if (msg.getMessage().empty())
     {
         if (channel.getTopic().empty())
@@ -169,7 +160,6 @@ void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& cl
             client.sendReply(":ircserv 332 " + client.getNick() + " " + channelName + " :" + channel.getTopic());
         return;
     }
-
     std::string topicMessage = msg.getMessage();
     if (!channel.isOperator(client.getSockFd()))
     {
@@ -178,16 +168,15 @@ void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& cl
     }
     channel.setTopic(topicMessage);
     channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + topicMessage);
-=======
-        client.sendReply(":ircserv 411 " + client.getNick() + " :No recipient given");
-        return;
-    }
+}
+
+
+void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels){
     if (msg.getMessage().empty())
     {
         client.sendReply(":ircserv 412 " + client.getNick() + " :No text to send");
         return;
     }
-    
     std::string target = msg.getParams()[0];
     std::string fullMsg = ":" + client.getNick() + "!~" + client.getUsername() + "@localhost PRIVMSG " + target + " :" + msg.getMessage();
 
@@ -219,5 +208,4 @@ void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& cl
         }
         client.sendReply(":ircserv 401 " + client.getNick() + " " + target + " :No such nick");
     }
->>>>>>> f67c53c (privmsg qui maaaarcheee)
 }
