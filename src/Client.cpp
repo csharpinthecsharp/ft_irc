@@ -52,7 +52,7 @@ void Client::tryToRegister()
     if (this->isRegistered())
         return;
 
-    if (this->getNick().empty() || !this->getUsername().empty())
+    if (this->getNick().empty() || this->getUsername().empty())
         return;
 
     if (!this->_serverPassword.empty() && !this->isAuthenticated())

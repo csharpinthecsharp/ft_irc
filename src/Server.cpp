@@ -107,7 +107,7 @@ void Server::open() {
     }
 }
 
-void Server::dispatch(const Message& msg, Client& client)
+bool Server::dispatch(const Message& msg, Client& client)
 {
     const std::string& cmd = msg.getCommand();
     if (cmd == "CAP")          
@@ -125,6 +125,10 @@ void Server::dispatch(const Message& msg, Client& client)
     }
     else if (cmd == "JOIN")
         handleJoin(msg, client, _channels);
-    else if (cmd == "QUIT")    
-        close(client.getSockFd());
+    else if (cmd == "QUIT")
+    {
+        client.sendReply(":ircserv ERROR :Goodbye");    
+        return false;
+    }
+    return true;
 }

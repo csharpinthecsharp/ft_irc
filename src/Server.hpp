@@ -34,7 +34,7 @@ class Server
         void markSocket() const;
 
         void open();
-        void dispatch(const Message& msg, Client& client);
+        bool dispatch(const Message& msg, Client& client);
 };
 
 #endif
