@@ -86,13 +86,23 @@ void Server::open() {
                     std::cout << buffer << std::endl;
                     Client& c = _clients[all_poll[i].fd];
                     c.appendBuffer(buffer);
+
+                    bool alive = true;
                     size_t pos;
-                while ((pos = c.getBuffer().find("\r\n")) != std::string::npos)
+                    while (alive && (pos = c.getBuffer().find("\r\n")) != std::string::npos)
                     {
                         std::string line = c.getBuffer().substr(0, pos);
                         c.eraseBuffer(pos + 2);
-                    if (!line.empty())
-                        dispatch(Message(line), c);
+                        if (!line.empty())
+                            alive = dispatch(Message(line), c);
+                    }
+
+                    if (!alive)
+                    {
+                        close(all_poll[i].fd);
+                        _clients.erase(all_poll[i].fd);
+                        all_poll.erase(all_poll.begin() + i);
+                        i--;
                     }
                 }
                 else
