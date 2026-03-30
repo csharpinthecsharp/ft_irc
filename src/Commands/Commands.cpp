@@ -152,6 +152,7 @@ void handleTopic(const Message& msg, Client& client, std::map<std::string, Chann
         client.sendReply(":ircserv 442 " + channelName + " :You're not on that channel");
         return;
     }
+
     if (msg.getMessage().empty())
     {
         if (channel.getTopic().empty())
@@ -160,25 +161,37 @@ void handleTopic(const Message& msg, Client& client, std::map<std::string, Chann
             client.sendReply(":ircserv 332 " + client.getNick() + " " + channelName + " :" + channel.getTopic());
         return;
     }
-    std::string topicMessage = msg.getMessage();
+
     if (!channel.isOperator(client.getSockFd()))
     {
         client.sendReply(":ircserv 482 " + channelName + " :You're not channel operator");
         return;
     }
-    channel.setTopic(topicMessage);
-    channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + topicMessage);
+    channel.setTopic(msg.getMessage());
+    channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + msg.getMessage());
 }
 
-
-void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels){
+void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
+{
+    if (!client.isRegistered())
+    {
+        client.sendReply(":ircserv 451 * :You have not registered");
+        return;
+    }
+    if (msg.getParams().empty())
+    {
+        client.sendReply(":ircserv 411 " + client.getNick() + " :No recipient given");
+        return;
+    }
     if (msg.getMessage().empty())
     {
         client.sendReply(":ircserv 412 " + client.getNick() + " :No text to send");
         return;
     }
+
     std::string target = msg.getParams()[0];
-    std::string fullMsg = ":" + client.getNick() + "!~" + client.getUsername() + "@localhost PRIVMSG " + target + " :" + msg.getMessage();
+    std::string fullMsg = ":" + client.getNick() + "!~" + client.getUsername()
+                        + "@localhost PRIVMSG " + target + " :" + msg.getMessage();
 
     if (target[0] == '#')
     {
