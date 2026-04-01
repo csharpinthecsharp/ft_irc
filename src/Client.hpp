@@ -34,6 +34,7 @@ class Client {
 
         void shutdown();
         void tryToRegister();
+        void leaveChannel( Channel& channel );
 
         void fillNameInfo();
         void appendBuffer( const std::string& buffer );

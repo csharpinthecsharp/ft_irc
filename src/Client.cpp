@@ -66,6 +66,16 @@ void Client::tryToRegister()
     this->sendReply(":ircserv 001 " + this->getNick() + " :Welcome to the server!");
 }
 
+void Client::leaveChannel( Channel& channel )
+{
+    if (!channel.isMember(this))
+    {
+        this->sendReply(":ircserv 442 " + this->getNick() + " " + channel.getName() + " :You're not on that channel");
+        return ;
+    }
+    channel.removeMember(this);
+}
+
 
 void Client::appendBuffer( const std::string& buffer )
 {

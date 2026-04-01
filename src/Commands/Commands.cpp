@@ -117,7 +117,49 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
     }
     client.sendReply(namesList);
     client.sendReply(":ircserv 366 " + client.getNick() + " " + channelName + " :End of /NAMES list");
-}   
+}
+
+void handlePart(const Message& msg, Client& client, std::map<std::string, Channel>& channels)
+{
+    if (!client.isRegistered())
+    {
+        client.sendReply(":ircserv 451 * :You have not registered");
+        return;
+    }
+    if (msg.getParams().empty())
+    {
+        client.sendReply(":ircserv 461 PART :Not enough parameters");
+        return;
+    }
+
+    std::string channelName = msg.getParams()[0];
+    if (channelName[0] != '#')
+    {
+        client.sendReply(":ircserv 403 " + client.getNick() + " " + channelName + " :No such channel");
+        return;
+    }
+
+    std::map<std::string, Channel>::iterator it = channels.find(channelName);
+    if (it == channels.end())
+    {
+        client.sendReply(":ircserv 403 " + client.getNick() + " " + channelName + " :No such channel");
+        return;
+    }
+    Channel& channel = it->second;
+    
+    if (msg.getMessage().empty())
+    {
+        channel.broadcast(":" + client.getNick() + " PART " + channelName + " :" + "Good bye!");
+        client.leaveChannel(channel);
+        return ;
+    }
+    else
+    {
+        channel.broadcast(":" + client.getNick() + " PART " + channelName + " :" + msg.getMessage());
+        client.leaveChannel(channel);
+        return ;
+    }
+}
 
 void handleTopic(const Message& msg, Client& client, std::map<std::string, Channel>& channels)
 {

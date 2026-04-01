@@ -139,6 +139,8 @@ bool Server::dispatch(const Message& msg, Client& client)
         handleTopic(msg, client, _channels);
     else if (cmd == "PRIVMSG")
         handlePrivmsg(msg, client, _clients, _channels);
+    else if (cmd == "PART")
+        handlePart(msg, client, _channels);
     else if (cmd == "QUIT")
     {
         client.sendReply(":ircserv ERROR :Goodbye");    
