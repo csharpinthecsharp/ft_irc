@@ -68,12 +68,12 @@ void Client::tryToRegister()
 
 void Client::leaveChannel( Channel& channel )
 {
-    if (!channel.isMember(this))
+    if (!channel.isMember(this->getSockFd()))
     {
         this->sendReply(":ircserv 442 " + this->getNick() + " " + channel.getName() + " :You're not on that channel");
         return ;
     }
-    channel.removeMember(this);
+    channel.removeMember(this->getSockFd());
 }
 
 

@@ -134,13 +134,13 @@ bool Server::dispatch(const Message& msg, Client& client)
         send(client.getSockFd(), pong.c_str(), pong.size(), 0);
     }
     else if (cmd == "JOIN")
-        handleJoin(msg, client, _channels);
+        handleJoin(msg, client, _clients, _channels);
     else if (cmd == "TOPIC")
-        handleTopic(msg, client, _channels);
+        handleTopic(msg, client, _clients, _channels);
     else if (cmd == "PRIVMSG")
         handlePrivmsg(msg, client, _clients, _channels);
     else if (cmd == "PART")
-        handlePart(msg, client, _channels);
+        handlePart(msg, client, _clients, _channels);
     else if (cmd == "QUIT")
     {
         client.sendReply(":ircserv ERROR :Goodbye");    

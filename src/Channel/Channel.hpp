@@ -12,7 +12,7 @@ class Channel
     private:
         std::string _name;
         std::string _topic;
-        std::map<int, Client*> _members;
+        std::vector<int> _members;
         std::vector<int> _operators;
 
     public:
@@ -24,14 +24,13 @@ class Channel
         const std::string& getTopic() const;
         void setTopic(const std::string& topic);
 
-        void addMember(Client* client);
-        void removeMember(Client* client);
-        bool isMember(Client* client) const;
+        void addMember(int fd);
+        void removeMember(int fd);
+        bool isMember(int fd) const;
 
         void addOperator(int fd); // operator = modo (kick topic mode invite)
         bool isOperator(int fd) const;
 
-        void broadcast(const std::string& msg, int exclude_fd = -1);
-
-        const std::map<int, Client*>& getMembers() const;
+        void broadcast(const std::string& msg, std::map<int, Client>& clients, int exclude_fd = -1);
+        const std::vector<int>& getMembers() const;
 };

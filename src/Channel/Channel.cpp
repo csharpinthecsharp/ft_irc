@@ -11,19 +11,32 @@ const std::string& Channel::getName() const { return _name; }
 const std::string& Channel::getTopic() const { return _topic; }
 void Channel::setTopic(const std::string& topic) { _topic = topic; }
 
-void Channel::addMember(Client* client)
+void Channel::addMember(int fd)
 {
-    _members[client->getSockFd()] = client;
+    if (!isMember(fd))
+        _members.push_back(fd);
 }
 
-void Channel::removeMember(Client* client)
+void Channel::removeMember(int fd)
 {
-    _members.erase(client->getSockFd());
+    for (size_t i = 0; i < _members.size(); i++)
+    {
+        if (_members[i] == fd)
+        {
+            _members.erase(_members.begin() + i);
+            return;
+        }
+    }
 }
 
-bool Channel::isMember(Client* client) const
+bool Channel::isMember(int fd) const
 {
-    return _members.find(client->getSockFd()) != _members.end();
+    for (size_t i = 0; i < _members.size(); i++)
+    {
+        if (_members[i] == fd)
+            return true;  
+    }
+    return false;
 }
 
 void Channel::addOperator(int fd)
@@ -41,17 +54,19 @@ bool Channel::isOperator(int fd) const
     return false;
 }
 
-void Channel::broadcast(const std::string& msg, int exclude_fd)
+void Channel::broadcast(const std::string& msg, std::map<int, Client>& clients, int exclude_fd)
 {
-    std::map<int, Client*>::iterator it;
-    for (it = _members.begin(); it != _members.end(); it++)
+    for (size_t i = 0; i < _members.size(); i++)
     {
-        if (it->first != exclude_fd)
-            it->second->sendReply(msg);
+        if (_members[i] == exclude_fd)
+            continue;
+        std::map<int, Client>::iterator it = clients.find(_members[i]);
+        if (it != clients.end())
+            it->second.sendReply(msg);
     }
 }
 
-const std::map<int, Client*>& Channel::getMembers() const
+const std::vector<int>& Channel::getMembers() const
 {
     return _members;
 }

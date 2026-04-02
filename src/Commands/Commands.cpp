@@ -67,7 +67,7 @@ void handleCap(const Message& msg, Client& client)
         client.eraseBuffer(client.getBuffer().size());
 }
 
-void handleJoin(const Message& msg, Client& client, std::map<std::string, Channel>& channels)
+void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
 {
     if (!client.isRegistered())
     {
@@ -90,16 +90,15 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
 
     Channel& channel = channels[channelName];
 
-    if (channel.isMember(&client))
+    if (channel.isMember(client.getSockFd()))
         return;
-    channel.addMember(&client);
+    channel.addMember(client.getSockFd());
 
     if (channel.getMembers().size() == 1) // premier membre est operator
         channel.addOperator(client.getSockFd());
 
     std::string joinMsg = ":" + client.getNick() + "!~" + client.getUsername() + "@localhost JOIN " + channelName;
-    channel.broadcast(joinMsg); // notifier le channel des nouveaux
-    client.setChannel(channel);
+    channel.broadcast(joinMsg, clients); // notifier le channel des nouveaux
 
     if (!channel.getTopic().empty())
         client.sendReply(":ircserv 332 " + client.getNick() + " " + channelName + " :" + channel.getTopic());
@@ -107,19 +106,20 @@ void handleJoin(const Message& msg, Client& client, std::map<std::string, Channe
         client.sendReply(":ircserv 331 " + client.getNick() + " " + channelName + " :No topic is set");
 
     std::string namesList = ":ircserv 353 " + client.getNick() + " = " + channelName + " :";
-    const std::map<int, Client*>& members = channel.getMembers();
-    std::map<int, Client*>::const_iterator it;
-    for (it = members.begin(); it != members.end(); it++)
+    const std::vector<int>& members = channel.getMembers();
+    for (size_t i = 0; i < members.size(); i++)
     {
-        if (channel.isOperator(it->first))
-            namesList += "@";
-        namesList += it->second->getNick() + " ";
+        std::map<int, Client>::iterator it = clients.find(members[i]);
+        if (it == clients.end()) continue;
+            if (channel.isOperator(members[i]))
+                namesList += "@";
+        namesList += it->second.getNick() + " ";
     }
     client.sendReply(namesList);
     client.sendReply(":ircserv 366 " + client.getNick() + " " + channelName + " :End of /NAMES list");
 }
 
-void handlePart(const Message& msg, Client& client, std::map<std::string, Channel>& channels)
+void handlePart(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
 {
     if (!client.isRegistered())
     {
@@ -146,22 +146,20 @@ void handlePart(const Message& msg, Client& client, std::map<std::string, Channe
         return;
     }
     Channel& channel = it->second;
-    
-    if (msg.getMessage().empty())
+
+    if (!channel.isMember(client.getSockFd()))
     {
-        channel.broadcast(":" + client.getNick() + " PART " + channelName + " :" + "Good bye!");
-        client.leaveChannel(channel);
-        return ;
+        client.sendReply(":ircserv 442 " + client.getNick() + " " + channelName + " :You're not on that channel");
+        return;
     }
-    else
-    {
-        channel.broadcast(":" + client.getNick() + " PART " + channelName + " :" + msg.getMessage());
-        client.leaveChannel(channel);
-        return ;
-    }
+
+    std::string partMsg = ":" + client.getNick() + " PART " + channelName + " :"
+        + (msg.getMessage().empty() ? "Good bye!" : msg.getMessage());
+    channel.broadcast(partMsg, clients);
+    channel.removeMember(client.getSockFd());
 }
 
-void handleTopic(const Message& msg, Client& client, std::map<std::string, Channel>& channels)
+void handleTopic(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
 {
     if (!client.isRegistered())
     {
@@ -189,7 +187,7 @@ void handleTopic(const Message& msg, Client& client, std::map<std::string, Chann
     }
 
     Channel& channel = it->second;
-    if (!channel.isMember(&client))
+    if (!channel.isMember(client.getSockFd()))
     {
         client.sendReply(":ircserv 442 " + channelName + " :You're not on that channel");
         return;
@@ -210,7 +208,7 @@ void handleTopic(const Message& msg, Client& client, std::map<std::string, Chann
         return;
     }
     channel.setTopic(msg.getMessage());
-    channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + msg.getMessage());
+    channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + msg.getMessage(), clients);
 }
 
 void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
@@ -243,12 +241,12 @@ void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& cl
             return;
         }
         Channel& channel = channels[target];
-        if (!channel.isMember(&client))
+        if (!channel.isMember(client.getSockFd()))
         {
             client.sendReply(":ircserv 404 " + client.getNick() + " " + target + " :Cannot send to channel");
             return;
         }
-        channel.broadcast(fullMsg, client.getSockFd());
+        channel.broadcast(fullMsg, clients, client.getSockFd());
     }
     else
     {
