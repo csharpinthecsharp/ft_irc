@@ -59,12 +59,10 @@ void handleUser(const Message& msg, Client& client)
 
 void handleCap(const Message& msg, Client& client)
 {
-    if (msg.getParams().empty()) 
+    if (msg.getParams().empty())
         return;
     if (msg.getParams()[0] == "LS")
         client.sendReply("CAP * LS :");
-    else if (msg.getParams()[0] == "END")
-        client.eraseBuffer(client.getBuffer().size());
 }
 
 void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
