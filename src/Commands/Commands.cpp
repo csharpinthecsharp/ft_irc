@@ -277,7 +277,9 @@ void handleKick(const Message& msg, Client& client, std::map<int, Client>& clien
     std::string channelName = msg.getParams()[0];
     std::string targetNick = msg.getParams()[1];
     std::string reason;
-    if (msg.getParams().size() > 2)
+    if (!msg.getMessage().empty())
+        reason = msg.getMessage();
+    else if (msg.getParams().size() > 2)
         reason = msg.getParams()[2];
     else
         reason = "No reason";
