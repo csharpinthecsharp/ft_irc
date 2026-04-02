@@ -117,11 +117,6 @@ void Client::setRealname(const std::string& realname)
     this->_realname = realname;
 }
 
-void Client::setChannel(const Channel& channel )
-{
-    _curr_channel = channel;
-}
-
 const std::string& Client::getNick() const 
 {
     return (this->_nick);
@@ -134,11 +129,6 @@ const std::string& Client::getUsername() const
 
 const std::string& Client::getRealname() const {
     return (this->_realname);
-}
-
-const Channel& Client::getChannel() const 
-{
-    return this->_curr_channel;
 }
 
 void Client::sendReply(const std::string& reply) 
