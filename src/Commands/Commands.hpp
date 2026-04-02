@@ -14,3 +14,4 @@ void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clien
 void handleTopic(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
 void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
 void handlePart(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
+void handleKick(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);

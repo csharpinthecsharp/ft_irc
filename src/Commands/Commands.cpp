@@ -260,3 +260,64 @@ void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& cl
         client.sendReply(":ircserv 401 " + client.getNick() + " " + target + " :No such nick");
     }
 }
+
+void handleKick(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
+{
+    if (!client.isRegistered())
+    {
+        client.sendReply(":ircserv 451 * :You have not registered");
+        return;
+    }
+    if (msg.getParams().size() < 2)
+    {
+        client.sendReply(":ircserv 461 KICK :Not enough parameters");
+        return;
+    }
+
+    std::string channelName = msg.getParams()[0];
+    std::string targetNick = msg.getParams()[1];
+    std::string reason;
+    if (msg.getParams().size() > 2)
+        reason = msg.getParams()[2];
+    else
+        reason = "No reason";
+
+    std::map<std::string, Channel>::iterator it = channels.find(channelName);
+    if (it == channels.end())
+    {
+        client.sendReply(":ircserv 403 " + client.getNick() + " " + channelName + " :No such channel");
+        return;
+    }
+    Channel& channel = it->second;
+    
+    if (!channel.isMember(client.getSockFd()))
+    {
+        client.sendReply(":ircserv 442 " + client.getNick() + " " + channelName + " :You're not on that channel");
+        return;
+    }
+    if (!channel.isOperator(client.getSockFd()))
+    {
+        client.sendReply(":ircserv 482 " + client.getNick() + " " + channelName + " :You're not channel operator");
+        return;
+    }
+    std::map<int, Client>::iterator target;
+    for (target = clients.begin(); target != clients.end(); target++)
+    {
+        if (target->second.getNick() == targetNick)
+            break;
+    }
+    if (target == clients.end())
+    {
+        client.sendReply(":ircserv 401 " + client.getNick() + " " + targetNick + " :No such nick");
+        return;
+    }
+    if (!channel.isMember(target->second.getSockFd()))
+    {
+        client.sendReply(":ircserv 441 " + client.getNick() + " " + targetNick + " :They aren't on that channel");
+        return;
+    }
+    std::string kickMsg = ":" + client.getNick() + "!~" + client.getUsername()
+        + "@localhost KICK " + channelName + " " + targetNick + " :" + reason;
+    channel.broadcast(kickMsg, clients);
+    channel.removeMember(target->second.getSockFd());
+}
