@@ -70,3 +70,31 @@ const std::vector<int>& Channel::getMembers() const
 {
     return _members;
 }
+
+void Channel::addInvited(int fd)
+{
+    if (!isInvited(fd))
+        _invited.push_back(fd);
+}
+
+bool Channel::isInvited(int fd) const
+{
+    for (size_t i = 0; i < _invited.size(); i++)
+    {
+        if (_invited[i] == fd)
+            return true;
+    }
+    return false;
+}
+
+void Channel::removeInvited(int fd)
+{
+    for (size_t i = 0; i < _invited.size(); i++)
+    {
+        if (_invited[i] == fd)
+        {
+            _invited.erase(_invited.begin() + i);
+            return;
+        }
+    }
+}

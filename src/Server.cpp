@@ -143,6 +143,8 @@ bool Server::dispatch(const Message& msg, Client& client)
         handlePart(msg, client, _clients, _channels);
     else if (cmd == "KICK")
         handleKick(msg, client, _clients, _channels);
+    else if (cmd == "INVITE")
+        handleInvite(msg, client, _clients, _channels);
     else if (cmd == "QUIT")
     {
         client.sendReply(":ircserv ERROR :Goodbye");    

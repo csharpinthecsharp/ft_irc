@@ -14,6 +14,7 @@ class Channel
         std::string _topic;
         std::vector<int> _members;
         std::vector<int> _operators;
+        std::vector<int> _invited;
 
     public:
         Channel();
@@ -27,6 +28,10 @@ class Channel
         void addMember(int fd);
         void removeMember(int fd);
         bool isMember(int fd) const;
+
+        void addInvited(int fd);
+        bool isInvited(int fd) const;
+        void removeInvited(int fd);
 
         void addOperator(int fd); // operator = modo (kick topic mode invite)
         bool isOperator(int fd) const;

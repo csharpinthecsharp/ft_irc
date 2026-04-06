@@ -323,3 +323,57 @@ void handleKick(const Message& msg, Client& client, std::map<int, Client>& clien
     channel.broadcast(kickMsg, clients);
     channel.removeMember(target->second.getSockFd());
 }
+
+
+void handleInvite(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
+{
+    // todo : gerer +i quand il sera implemente
+    if (!client.isRegistered())
+    {
+        client.sendReply(":ircserv 451 * :You have not registered");
+        return;
+    }
+    if (msg.getParams().size() < 2)
+    {
+        client.sendReply(":ircserv 461 INVITE :Not enough parameters");
+        return;
+    }
+
+    std::string targetNick = msg.getParams()[0];
+    std::string channelName = msg.getParams()[1];
+
+    std::map<std::string, Channel>::iterator chanIt = channels.find(channelName);
+    if (chanIt == channels.end())
+    {
+        client.sendReply(":ircserv 403 " + client.getNick() + " " + channelName + " :No such channel");
+        return;                                                                                          
+    }
+    Channel& channel = chanIt->second;
+
+    if (!channel.isMember(client.getSockFd()))
+    {
+        client.sendReply(":ircserv 442 " + client.getNick() + " " + channelName + " :You're not on that channel");
+        return;
+    }
+
+    std::map<int, Client>::iterator targetIt;
+    for (targetIt = clients.begin(); targetIt != clients.end(); targetIt++)
+    {
+        if (targetIt->second.getNick() == targetNick)
+            break;
+    }
+    if (targetIt == clients.end())
+    {
+        client.sendReply(":ircserv 401 " + client.getNick() + " " + targetNick + " :No such nick");
+        return;
+    }
+    Client& target = targetIt->second;
+    if (channel.isMember(target.getSockFd()))
+    {
+        client.sendReply(":ircserv 443 " + client.getNick() + " " + targetNick + " " + channelName + " :is already on channel");
+        return;
+    }
+    channel.addInvited(target.getSockFd());
+    client.sendReply(":ircserv 341 " + client.getNick() + " " + targetNick + " " + channelName);
+    target.sendReply(":" + client.getNick() + "!~" + client.getUsername() + "@localhost INVITE " + targetNick + " :" + channelName);
+}
