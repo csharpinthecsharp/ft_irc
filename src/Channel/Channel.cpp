@@ -98,3 +98,18 @@ void Channel::removeInvited(int fd)
         }
     }
 }
+
+void Channel::promoteNextOperator(std::map<int, Client>& clients)
+{
+    if (_members.empty())
+        return;
+    if (!_operators.empty())
+        return;
+
+    int newOp = _members[0];
+    _operators.push_back(newOp);
+
+    std::map<int, Client>::iterator it = clients.find(newOp);
+    if (it != clients.end())
+        broadcast(":ircserv MODE " + _name + " +o " + it->second.getNick(), clients);
+}

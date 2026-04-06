@@ -35,6 +35,7 @@ class Channel
 
         void addOperator(int fd); // operator = modo (kick topic mode invite)
         bool isOperator(int fd) const;
+        void promoteNextOperator(std::map<int, Client>& clients);
 
         void broadcast(const std::string& msg, std::map<int, Client>& clients, int exclude_fd = -1);
         const std::vector<int>& getMembers() const;

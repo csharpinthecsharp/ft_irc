@@ -125,7 +125,11 @@ void Server::cleanEmptyChannels()
     while (it != _channels.end())
     {
         if (it->second.getMembers().empty())
-            it = _channels.erase(it);
+        {
+            std::map<std::string, Channel>::iterator toDelete = it;
+            ++it;
+            _channels.erase(toDelete);
+        }
         else
             ++it;
     }
