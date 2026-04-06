@@ -19,6 +19,8 @@ int Server::createSocket() const
     int temp = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (temp == FAIL)
         throw ServerSocketCreationFailedException();
+    int opt = 1;
+    setsockopt(temp, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     return temp;
 }
 
