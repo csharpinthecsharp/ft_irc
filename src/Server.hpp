@@ -35,6 +35,7 @@ class Server
 
         void open();
         bool dispatch(const Message& msg, Client& client);
+        void cleanEmptyChannels();
 };
 
 #endif

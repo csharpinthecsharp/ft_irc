@@ -119,6 +119,18 @@ void Server::open() {
     }
 }
 
+void Server::cleanEmptyChannels()
+{
+    std::map<std::string, Channel>::iterator it = _channels.begin();
+    while (it != _channels.end())
+    {
+        if (it->second.getMembers().empty())
+            it = _channels.erase(it);
+        else
+            ++it;
+    }
+}
+
 bool Server::dispatch(const Message& msg, Client& client)
 {
     const std::string& cmd = msg.getCommand();
@@ -142,14 +154,21 @@ bool Server::dispatch(const Message& msg, Client& client)
     else if (cmd == "PRIVMSG")
         handlePrivmsg(msg, client, _clients, _channels);
     else if (cmd == "PART")
+    {
         handlePart(msg, client, _clients, _channels);
+        cleanEmptyChannels();
+    }
     else if (cmd == "KICK")
+    {
         handleKick(msg, client, _clients, _channels);
+        cleanEmptyChannels();
+    }
     else if (cmd == "INVITE")
         handleInvite(msg, client, _clients, _channels);
     else if (cmd == "QUIT")
     {
-        client.sendReply(":ircserv ERROR :Goodbye");    
+        handleQuit(msg, client, _clients, _channels);
+        cleanEmptyChannels(); 
         return false;
     }
     return true;

@@ -377,3 +377,22 @@ void handleInvite(const Message& msg, Client& client, std::map<int, Client>& cli
     client.sendReply(":ircserv 341 " + client.getNick() + " " + targetNick + " " + channelName);
     target.sendReply(":" + client.getNick() + "!~" + client.getUsername() + "@localhost INVITE " + targetNick + " :" + channelName);
 }
+
+void handleQuit(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
+{
+    std::string quitMsg = ":" + client.getNick() + "!~" + client.getUsername()
+        + "@localhost QUIT :" + (msg.getMessage().empty() ? "Quit" : msg.getMessage());
+
+    std::map<std::string, Channel>::iterator it;
+    for (it = channels.begin(); it != channels.end(); it++)
+    {
+        Channel& chan = it->second;
+        if (chan.isMember(client.getSockFd()))
+        {
+            chan.broadcast(quitMsg, clients, client.getSockFd());
+            chan.removeMember(client.getSockFd());
+            chan.promoteNextOperator(clients);
+        }
+    }
+    client.sendReply(":ircserv ERROR :Goodbye");
+}

@@ -16,3 +16,4 @@ void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& cl
 void handlePart(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
 void handleKick(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
 void handleInvite(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
+void handleQuit(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
