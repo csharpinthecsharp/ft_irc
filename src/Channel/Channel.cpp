@@ -13,6 +13,8 @@ void Channel::setTopic(const std::string& topic) { _topic = topic; }
 
 void Channel::addMember(int fd)
 {
+    if (isLocked() && !isInvited(fd))
+        return ;
     if (!isMember(fd))
         _members.push_back(fd);
 }
@@ -69,6 +71,25 @@ void Channel::broadcast(const std::string& msg, std::map<int, Client>& clients, 
 const std::vector<int>& Channel::getMembers() const
 {
     return _members;
+}
+
+void addLock()
+{
+    if (_locked)
+        return;
+    _locked = true;
+}
+
+void removeLock()
+{
+    if (!_locked)
+        return;
+    _locked = false;
+}
+
+bool isLocked() const
+{
+    return (_locked);
 }
 
 void Channel::addInvited(int fd)

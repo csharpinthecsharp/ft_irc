@@ -17,3 +17,4 @@ void handlePart(const Message& msg, Client& client, std::map<int, Client>& clien
 void handleKick(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
 void handleInvite(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
 void handleQuit(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);
+void handleMode(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels);

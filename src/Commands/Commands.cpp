@@ -396,3 +396,82 @@ void handleQuit(const Message& msg, Client& client, std::map<int, Client>& clien
     }
     client.sendReply(":ircserv ERROR :Goodbye");
 }
+
+void handleMode(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels) 
+{
+    ///mode #cool +o MEAT
+    if (!client.isRegistered())
+    {
+        client.sendReply(":ircserv 451 * :You have not registered");
+        return;
+    }
+    if (msg.getParams().size() < 2)
+    {
+        client.sendReply(":ircserv 461 MODE :Not enough parameters");
+        return;
+    }
+
+    std::map<std::string, Channel>::iterator it = channels.find(msg.getParams()[0]);
+    if (it == channels.end())
+    {
+        client.sendReply(":ircserv 403 " + client.getNick() + " " + msg.getParams()[0] + " :No such channel");
+        return;
+    }
+    Channel& targetChannel = it->second;
+
+    std::string mode = msg.getParams()[1];
+    
+    if (mode.size() != 2)
+    {
+        client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
+        return;
+    }
+    bool set;
+    if (mode[0] == '+')
+        set = true;
+    else if (mode[0] == '-')
+        set = false;
+    else
+    {
+        client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
+        return;
+    }
+    char flag = mode[1];
+    if (flag != 'i' && flag != 't' && flag != 'k' && flag != 'l' && flag != 'o')
+    {
+        client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
+        return;
+    }
+    if (msg.getParams().size() == 2)
+    {
+        std:string target = msg.getParams()[0];
+        if (flag == 'i')
+        {
+            if (set)
+                targetChannel.addLock();
+            else
+                targetChannel.removeLock();
+        }
+        if (flag == 't')
+        {
+            //todo
+        }
+    }
+    if (msg.getParams().size() > 3)
+    {
+        std:string lastParam = msg.getMessage();
+            if (flag == 'k')
+        {
+            //todo
+        }
+        if (flag == 'o')
+        {
+            //todo
+        }
+        if (flag == 'l')
+        {
+            //todo
+        }
+        return; 
+    }
+}
