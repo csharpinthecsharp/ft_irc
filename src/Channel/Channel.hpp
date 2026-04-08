@@ -16,6 +16,7 @@ class Channel
         std::vector<int> _operators;
         std::vector<int> _invited;
         bool _locked;
+        bool _topic_locked_for_operator;
 
     public:
         Channel();
@@ -37,6 +38,10 @@ class Channel
         void addLock();
         void removeLock();
         bool isLocked() const;
+
+        void addTopicLock();
+        void removeTopicLock();
+        bool isTopicLocked() const;
 
         void addOperator(int fd); // operator = modo (kick topic mode invite)
         bool isOperator(int fd) const;

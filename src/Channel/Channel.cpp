@@ -73,25 +73,43 @@ const std::vector<int>& Channel::getMembers() const
     return _members;
 }
 
-void addLock()
+void Channel::addLock()
 {
     if (_locked)
         return;
     _locked = true;
 }
 
-void removeLock()
+void Channel::removeLock()
 {
     if (!_locked)
         return;
     _locked = false;
 }
 
-bool isLocked() const
+bool Channel::isLocked() const
 {
     return (_locked);
 }
 
+void Channel::addTopicLock()
+{
+    if (_topic_locked_for_operator)
+        return;
+    _topic_locked_for_operator = true;
+}
+
+void Channel::removeTopicLock()
+{
+    if (!_topic_locked_for_operator)
+        return;
+    _topic_locked_for_operator = false;
+}
+
+bool Channel::isTopicLocked() const
+{
+    return (_topic_locked_for_operator);
+}
 void Channel::addInvited(int fd)
 {
     if (!isInvited(fd))

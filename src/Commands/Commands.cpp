@@ -199,11 +199,13 @@ void handleTopic(const Message& msg, Client& client, std::map<int, Client>& clie
             client.sendReply(":ircserv 332 " + client.getNick() + " " + channelName + " :" + channel.getTopic());
         return;
     }
-
-    if (!channel.isOperator(client.getSockFd()))
+    if (channel.isTopicLocked())
     {
-        client.sendReply(":ircserv 482 " + channelName + " :You're not channel operator");
-        return;
+        if (!channel.isOperator(client.getSockFd()))
+        {
+            client.sendReply(":ircserv 482 " + channelName + " :You're not channel operator");
+            return;
+        }
     }
     channel.setTopic(msg.getMessage());
     channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + msg.getMessage(), clients);
@@ -454,8 +456,11 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
         }
         if (flag == 't')
         {
-            //todo
-        }
+            if (set)
+                targetChannel.addTopicLock();
+            else
+                targetChannel.removeTopicLock();
+            }
     }
     if (msg.getParams().size() > 3)
     {
