@@ -446,7 +446,7 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
     }
     if (msg.getParams().size() == 2)
     {
-        std:string target = msg.getParams()[0];
+        std::string target = msg.getParams()[0];
         if (flag == 'i')
         {
             if (set)
@@ -460,22 +460,31 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
                 targetChannel.addTopicLock();
             else
                 targetChannel.removeTopicLock();
-            }
+        }
     }
-    if (msg.getParams().size() > 3)
+    if (msg.getParams().size() > 2)
     {
-        std:string lastParam = msg.getMessage();
-            if (flag == 'k')
+        std::string lastParam = msg.getParams()[2];
+        if (flag == 'k')
         {
-            //todo
+            if (set)
+                targetChannel.addPassword(lastParam);
+            else
+                targetChannel.removePassword();
         }
         if (flag == 'o')
         {
-            //todo
+            if (set)
+                targetChannel.addOperator(clients[lastParam].getSockFd());
+            else
+                targetChannel.promoteNextOperator(clients);
         }
         if (flag == 'l')
         {
-            //todo
+            if (set)
+                targetChannel.addUserLimit(std::atoi(lastParam.c_str()));
+            else
+                targetChannel.removeUserLimit();
         }
         return; 
     }

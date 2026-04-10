@@ -138,6 +138,43 @@ void Channel::removeInvited(int fd)
     }
 }
 
+void Channel::addUserLimit( size_t n )
+{
+    this->_user_limit = n;
+    return;
+}
+
+void Channel::removeUserLimit()
+{
+    this->_user_limit = 0;
+    return;
+}
+
+bool Channel::isUserLimit() const
+{
+    // 0 = no limit
+    return (this->_user_limit != 0 && this->members.size() >= this->_user_limit);
+}
+
+void addPassword( const std::string& pass )
+{
+    this->_password = pass;
+    return;
+}
+
+void removePassword()
+{
+    this->password.clear();
+    return;
+}
+
+bool isPassword() const
+{
+    if (this->password.empty())
+        return false;
+    return true;
+}
+
 void Channel::promoteNextOperator(std::map<int, Client>& clients)
 {
     if (_members.empty())

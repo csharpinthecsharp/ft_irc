@@ -15,9 +15,10 @@ class Channel
         std::vector<int> _members;
         std::vector<int> _operators;
         std::vector<int> _invited;
+        std::string _password;
+        size_t _user_limit;
         bool _locked;
         bool _topic_locked_for_operator;
-
     public:
         Channel();
         Channel(const std::string& name);
@@ -34,6 +35,14 @@ class Channel
         void addInvited(int fd);
         bool isInvited(int fd) const;
         void removeInvited(int fd);
+
+        void addUserLimit( size_t n );
+        void removeUserLimit();
+        bool isUserLimit() const;
+
+        void addPassword( const std::string& pass );
+        void removePassword();
+        bool isPassword() const;
 
         void addLock();
         void removeLock();
