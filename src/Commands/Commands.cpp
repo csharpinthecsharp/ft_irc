@@ -428,6 +428,7 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
         client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
         return;
     }
+    
     bool set;
     if (mode[0] == '+')
         set = true;
@@ -438,54 +439,43 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
         client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
         return;
     }
+
     char flag = mode[1];
     if (flag != 'i' && flag != 't' && flag != 'k' && flag != 'l' && flag != 'o')
     {
         client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
         return;
     }
-    if (msg.getParams().size() == 2)
+
+    if ((flag == 'k' || flag == 'l' || flag == 'o') && set && msg.getParams().size() < 3)
     {
-        std::string target = msg.getParams()[0];
-        if (flag == 'i')
-        {
-            if (set)
-                targetChannel.addLock();
-            else
-                targetChannel.removeLock();
-        }
-        if (flag == 't')
-        {
-            if (set)
-                targetChannel.addTopicLock();
-            else
-                targetChannel.removeTopicLock();
-        }
+        client.sendReply(":ircserv 461 MODE :Not enough parameters");
+        return;
     }
+
+    std::string target = msg.getParams()[0];
+    std::string lastParam;
     if (msg.getParams().size() > 2)
+        lastParam = msg.getParams()[2];
+    
+    switch (flag)
     {
-        std::string lastParam = msg.getParams()[2];
-        if (flag == 'k')
-        {
-            if (set)
-                targetChannel.addPassword(lastParam);
-            else
-                targetChannel.removePassword();
-        }
-        if (flag == 'o')
-        {
-            if (set)
-                targetChannel.addOperator(clients[lastParam].getSockFd());
-            else
-                targetChannel.promoteNextOperator(clients);
-        }
-        if (flag == 'l')
-        {
-            if (set)
-                targetChannel.addUserLimit(std::atoi(lastParam.c_str()));
-            else
-                targetChannel.removeUserLimit();
-        }
-        return; 
+        case 'i':
+            set ? targetChannel.addLock() : targetChannel.removeLock();
+            break;
+        case 't':
+            set ? targetChannel.addTopicLock() : targetChannel.removeTopicLock();
+            break;
+        case 'k':
+            set ? targetChannel.addPassword(lastParam) : targetChannel.removePassword();
+            break;
+        case 'o':
+            set ? targetChannel.addOperator(clients[lastParam].getSockFd()) : targetChannel.promoteNextOperator(clients);
+            break;
+        case 'l':
+            set ? targetChannel.addUserLimit(std::atoi(lastParam.c_str()))
+                : targetChannel.removeUserLimit();
+            break;
     }
+    return; 
 }

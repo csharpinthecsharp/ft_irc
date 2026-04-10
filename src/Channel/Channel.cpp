@@ -13,7 +13,11 @@ void Channel::setTopic(const std::string& topic) { _topic = topic; }
 
 void Channel::addMember(int fd)
 {
+    // ON DOIT AJOUTé LES ERREURS POUR USER LIMIT && LOCKED.
+    // + PASSWORD HANDLING SUR LE CHANNEL
     if (isLocked() && !isInvited(fd))
+        return ;
+    if (isUserLimit())
         return ;
     if (!isMember(fd))
         _members.push_back(fd);
