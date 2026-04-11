@@ -169,6 +169,8 @@ bool Server::dispatch(const Message& msg, Client& client)
     }
     else if (cmd == "INVITE")
         handleInvite(msg, client, _clients, _channels);
+    else if (cmd == "MODE")
+        handleMode(msg, client, _clients, _channels);
     else if (cmd == "QUIT")
     {
         handleQuit(msg, client, _clients, _channels);

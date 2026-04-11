@@ -88,6 +88,12 @@ void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clien
 
     Channel& channel = channels[channelName];
 
+    if (channel.isLocked()) 
+    {
+        client.sendReply(":ircserv 473 " + client.getNick() + " " + channel.getName() + " :Cannot join channel (+i)");
+        return;
+    }
+
     if (channel.isMember(client.getSockFd()))
         return;
     channel.addMember(client.getSockFd());
@@ -425,7 +431,7 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
     
     if (mode.size() != 2)
     {
-        client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
+        client.sendReply(":ircserv 472 " + client.getNick() + " " + mode + " :is unknown mode char");
         return;
     }
     
@@ -436,14 +442,14 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
         set = false;
     else
     {
-        client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
+        client.sendReply(":ircserv 472 " + client.getNick() + " " + mode + " :is unknown mode char");
         return;
     }
 
     char flag = mode[1];
     if (flag != 'i' && flag != 't' && flag != 'k' && flag != 'l' && flag != 'o')
     {
-        client.sendReply(":ircserv 472 " + client.getNickname() + " " + mode + " :is unknown mode char");
+        client.sendReply(":ircserv 472 " + client.getNick() + " " + mode + " :is unknown mode char");
         return;
     }
 
@@ -462,6 +468,7 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
     {
         case 'i':
             set ? targetChannel.addLock() : targetChannel.removeLock();
+            std::cout << "hey" << " " << targetChannel.isLocked() << std::endl;
             break;
         case 't':
             set ? targetChannel.addTopicLock() : targetChannel.removeTopicLock();
@@ -470,7 +477,7 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
             set ? targetChannel.addPassword(lastParam) : targetChannel.removePassword();
             break;
         case 'o':
-            set ? targetChannel.addOperator(clients[lastParam].getSockFd()) : targetChannel.promoteNextOperator(clients);
+            (void)clients;
             break;
         case 'l':
             set ? targetChannel.addUserLimit(std::atoi(lastParam.c_str()))

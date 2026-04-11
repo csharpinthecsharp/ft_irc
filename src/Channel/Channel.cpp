@@ -3,7 +3,7 @@
 
 Channel::Channel() {}
 
-Channel::Channel(const std::string& name) : _name(name), _topic("") {}
+Channel::Channel(const std::string& name) : _name(name), _topic(""), _locked(false) {}
 
 Channel::~Channel() {}
 
@@ -15,10 +15,6 @@ void Channel::addMember(int fd)
 {
     // ON DOIT AJOUTé LES ERREURS POUR USER LIMIT && LOCKED.
     // + PASSWORD HANDLING SUR LE CHANNEL
-    if (isLocked() && !isInvited(fd))
-        return ;
-    if (isUserLimit())
-        return ;
     if (!isMember(fd))
         _members.push_back(fd);
 }
@@ -157,24 +153,24 @@ void Channel::removeUserLimit()
 bool Channel::isUserLimit() const
 {
     // 0 = no limit
-    return (this->_user_limit != 0 && this->members.size() >= this->_user_limit);
+    return (this->_user_limit != 0 && this->_members.size() >= this->_user_limit);
 }
 
-void addPassword( const std::string& pass )
+void Channel::addPassword( const std::string& pass )
 {
     this->_password = pass;
     return;
 }
 
-void removePassword()
+void Channel::removePassword()
 {
-    this->password.clear();
+    this->_password.clear();
     return;
 }
 
-bool isPassword() const
+bool Channel::isPassword() const
 {
-    if (this->password.empty())
+    if (this->_password.empty())
         return false;
     return true;
 }
