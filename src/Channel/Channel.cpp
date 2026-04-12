@@ -64,7 +64,8 @@ void Channel::broadcast(const std::string& msg, std::map<int, Client>& clients, 
             continue;
         std::map<int, Client>::iterator it = clients.find(_members[i]);
         if (it != clients.end())
-            it->second.sendReply(msg);
+            it->        const std::string& getPassword() const;
+second.sendReply(msg);
     }
 }
 
@@ -167,6 +168,12 @@ void Channel::removePassword()
     this->_password.clear();
     return;
 }
+
+const std::string& Channel::getPassword() const
+{
+    return (_password);
+}
+
 
 bool Channel::isPassword() const
 {

@@ -42,6 +42,7 @@ class Channel
 
         void addPassword( const std::string& pass );
         void removePassword();
+        const std::string& getPassword() const;
         bool isPassword() const;
 
         void addLock();

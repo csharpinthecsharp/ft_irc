@@ -88,10 +88,20 @@ void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clien
 
     Channel& channel = channels[channelName];
 
-    if (channel.isLocked()) 
+    if (channel.isLocked() && !channel.isInvited(client.getSockFd())) 
     {
-        client.sendReply(":ircserv 473 " + client.getNick() + " " + channel.getName() + " :Cannot join channel (+i)");
+        client.sendReply(":ircserv 473 " + client.getNick() + " " + channelName + " :Cannot join channel (+i)");
         return;
+    }
+
+    if (channel.isPassword())
+    {
+        std::string key = msg.getParams()[1];
+        if (key != channel.getPassword())
+        {
+            client.sendReply(":ircserv 475 " + channelName + " :Cannot join channel (+k)");
+            return;
+        }
     }
 
     if (channel.isMember(client.getSockFd()))
@@ -167,7 +177,7 @@ void handleTopic(const Message& msg, Client& client, std::map<int, Client>& clie
 {
     if (!client.isRegistered())
     {
-        client.sendReply(":ircserv 451 * :You have not registered");
+        cœient.sendReply(":ircserv 451 * :You have not registered");
         return;
     }
     if (msg.getParams().empty())
@@ -195,6 +205,13 @@ void handleTopic(const Message& msg, Client& client, std::map<int, Client>& clie
     {
         client.sendReply(":ircserv 442 " + channelName + " :You're not on that channel");
         return;
+    }
+
+    // for mode t
+    if (channel.isTopicLocked() && !channel.isOperator(client.getSockFd()))
+    {
+            client.sendReply(":ircserv 482 " + channelName + " :You're not channel operator");
+            return;  
     }
 
     if (msg.getMessage().empty())
@@ -468,7 +485,6 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
     {
         case 'i':
             set ? targetChannel.addLock() : targetChannel.removeLock();
-            std::cout << "hey" << " " << targetChannel.isLocked() << std::endl;
             break;
         case 't':
             set ? targetChannel.addTopicLock() : targetChannel.removeTopicLock();
