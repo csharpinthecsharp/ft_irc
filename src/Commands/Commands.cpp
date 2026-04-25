@@ -177,7 +177,7 @@ void handleTopic(const Message& msg, Client& client, std::map<int, Client>& clie
 {
     if (!client.isRegistered())
     {
-        cœient.sendReply(":ircserv 451 * :You have not registered");
+        client.sendReply(":ircserv 451 * :You have not registered");
         return;
     }
     if (msg.getParams().empty())

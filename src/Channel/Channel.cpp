@@ -64,8 +64,7 @@ void Channel::broadcast(const std::string& msg, std::map<int, Client>& clients, 
             continue;
         std::map<int, Client>::iterator it = clients.find(_members[i]);
         if (it != clients.end())
-            it->        const std::string& getPassword() const;
-second.sendReply(msg);
+            it->second.sendReply(msg);
     }
 }
 

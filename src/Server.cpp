@@ -155,7 +155,7 @@ bool Server::dispatch(const Message& msg, Client& client)
         handleJoin(msg, client, _clients, _channels);
     else if (cmd == "TOPIC")
         handleTopic(msg, client, _clients, _channels);
-    else if (cmd == "PRIVMSG")
+    else if ((cmd == "PRIVMSG") || (cmd == "NOTICE"))
         handlePrivmsg(msg, client, _clients, _channels);
     else if (cmd == "PART")
     {
