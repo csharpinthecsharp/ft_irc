@@ -173,7 +173,6 @@ const std::string& Channel::getPassword() const
     return (_password);
 }
 
-
 bool Channel::isPassword() const
 {
     if (this->_password.empty())
@@ -194,4 +193,18 @@ void Channel::promoteNextOperator(std::map<int, Client>& clients)
     std::map<int, Client>::iterator it = clients.find(newOp);
     if (it != clients.end())
         broadcast(":ircserv MODE " + _name + " +o " + it->second.getNick(), clients);
+}
+
+void Channel::removeOperator(int fd)
+{
+    if (!isOperator(fd))
+        return ;
+    for (size_t i = 0; i < _operators.size(); i++)
+    {
+        if (_operators[i] == fd)
+        {
+            _operators.erase(_operators.begin() + i);
+            return ;
+        }
+    }
 }

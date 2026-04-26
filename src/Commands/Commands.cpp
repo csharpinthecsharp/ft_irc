@@ -94,6 +94,12 @@ void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clien
         return;
     }
 
+    if (channel.isUserLimit()) 
+    {
+        client.sendReply(":ircserv 473 " + client.getNick() + " " + channelName + " :Cannot join channel (+l)");
+        return;
+    }
+
     if (channel.isPassword())
     {
         std::string key = msg.getParams()[1];
@@ -431,17 +437,11 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
         return;
     }
     if (msg.getParams().size() < 2)
-    {
-        client.sendReply(":ircserv 461 MODE :Not enough parameters");
         return;
-    }
 
     std::map<std::string, Channel>::iterator it = channels.find(msg.getParams()[0]);
     if (it == channels.end())
-    {
-        client.sendReply(":ircserv 403 " + client.getNick() + " " + msg.getParams()[0] + " :No such channel");
         return;
-    }
     Channel& targetChannel = it->second;
 
     std::string mode = msg.getParams()[1];
@@ -480,6 +480,25 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
     std::string lastParam;
     if (msg.getParams().size() > 2)
         lastParam = msg.getParams()[2];
+
+    Client* user = NULL;
+
+    if (!lastParam.empty())
+    {
+        for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+        {
+            if (it->second.getNick() == lastParam)
+            {
+                user = &it->second;
+                break;
+            }
+        }
+        if (!user)
+        {
+            client.sendReply(":ircserv 401 " + client.getNick() + " " + lastParam + " :No such nick");
+            return;
+        }
+    }
     
     switch (flag)
     {
@@ -493,7 +512,7 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
             set ? targetChannel.addPassword(lastParam) : targetChannel.removePassword();
             break;
         case 'o':
-            (void)clients;
+            set ? targetChannel.addOperator(user->getSockFd()) : targetChannel.removeOperator(user->getSockFd());
             break;
         case 'l':
             set ? targetChannel.addUserLimit(std::atoi(lastParam.c_str()))
