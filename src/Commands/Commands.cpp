@@ -25,7 +25,7 @@ void handlePass(const Message& msg, Client& client, const std::string& serverPas
     client.tryToRegister();
 }
 
-void handleNick(const Message& msg, Client& client, std::map<int, Client>& clients)
+void handleNick(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
 {
     if (msg.getParams().empty()) {
         client.sendReply(":ircserv 431 * :No nickname given");
@@ -40,11 +40,32 @@ void handleNick(const Message& msg, Client& client, std::map<int, Client>& clien
             return;
         }
     }
+
     if (client.isRegistered())
     {
         std::string oldNick = client.getNick();
+        std::string nickMsg = ":" + oldNick + "!" + client.getUsername() + "@" + client.getHost() + " NICK :" + newNick;
+        
         client.setNick(newNick);
-        client.sendReply(":" + oldNick + "!" + client.getUsername() + "@" + client.getHost() + " NICK :" + newNick);
+
+        std::set<int> fds_to_notify;
+        fds_to_notify.insert(client.getSockFd());
+
+        for (std::map<std::string, Channel>::iterator chanIt = channels.begin(); chanIt != channels.end(); ++chanIt) 
+        {
+            if (chanIt->second.isMember(client.getSockFd())) 
+            {
+                const std::vector<int>& members = chanIt->second.getMembers();
+                for (size_t i = 0; i < members.size(); ++i) {
+                    fds_to_notify.insert(members[i]);
+                }
+            }
+        }
+
+        for (std::set<int>::iterator setIt = fds_to_notify.begin(); setIt != fds_to_notify.end(); ++setIt) 
+        {
+            clients[*setIt].sendReply(nickMsg);
+        }
     }
     else
     {
@@ -92,7 +113,7 @@ void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clien
         client.sendReply(":ircserv 403 " + client.getNick() + " " + channelName + " :No such channel");
         return ;
     }
-    if (channels.find(channelName) == channels.end()) // creation si le channel existe pas
+    if (channels.find(channelName) == channels.end())
         channels[channelName] = Channel(channelName);
 
     Channel& channel = channels[channelName];
@@ -182,8 +203,8 @@ void handlePart(const Message& msg, Client& client, std::map<int, Client>& clien
         return;
     }
 
-    std::string partMsg = ":" + client.getNick() + " PART " + channelName + " :"
-        + (msg.getMessage().empty() ? "Good bye!" : msg.getMessage());
+    std::string partMsg = ":" + client.getNick() + "!" + client.getUsername() + "@" + client.getHost() 
+    + " PART " + channelName + " :" + (msg.getMessage().empty() ? "Good bye!" : msg.getMessage());
     channel.broadcast(partMsg, clients);
     channel.removeMember(client.getSockFd());
 }
@@ -246,7 +267,8 @@ void handleTopic(const Message& msg, Client& client, std::map<int, Client>& clie
         }
     }
     channel.setTopic(msg.getMessage());
-    channel.broadcast(":" + client.getNick() + " TOPIC " + channelName + " :" + msg.getMessage(), clients);
+    channel.broadcast(":" + client.getNick() + "!" + client.getUsername() + "@" + client.getHost() 
+        + " TOPIC " + channelName + " :" + msg.getMessage(), clients);
 }
 
 void handlePrivmsg(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)

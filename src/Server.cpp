@@ -143,7 +143,7 @@ bool Server::dispatch(const Message& msg, Client& client)
     else if (cmd == "PASS")    
         handlePass(msg, client, _password);
     else if (cmd == "NICK")
-        handleNick(msg, client, _clients);
+        handleNick(msg, client, _clients, _channels);
     else if (cmd == "USER")    
         handleUser(msg, client);
     else if (cmd == "PING")

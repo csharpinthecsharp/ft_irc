@@ -13,8 +13,6 @@ void Channel::setTopic(const std::string& topic) { _topic = topic; }
 
 void Channel::addMember(int fd)
 {
-    // ON DOIT AJOUTé LES ERREURS POUR USER LIMIT && LOCKED.
-    // + PASSWORD HANDLING SUR LE CHANNEL
     if (!isMember(fd))
         _members.push_back(fd);
 }
@@ -152,7 +150,6 @@ void Channel::removeUserLimit()
 
 bool Channel::isUserLimit() const
 {
-    // 0 = no limit
     return (this->_user_limit != 0 && this->_members.size() >= this->_user_limit);
 }
 

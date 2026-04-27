@@ -53,7 +53,7 @@ class Channel
         void removeTopicLock();
         bool isTopicLocked() const;
 
-        void addOperator(int fd); // operator = modo (kick topic mode invite)
+        void addOperator(int fd);
         bool isOperator(int fd) const;
         void promoteNextOperator(std::map<int, Client>& clients);
         void removeOperator(int fd);
