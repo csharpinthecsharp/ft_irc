@@ -156,7 +156,6 @@ bool Channel::isUserLimit() const
 void Channel::addPassword( const std::string& pass )
 {
     this->_password = pass;
-    return;
 }
 
 void Channel::removePassword()

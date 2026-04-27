@@ -130,12 +130,14 @@ void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clien
         return;
     }
 
-    if (channel.isPassword())
+    if (channel.isPassword()) 
     {
-        std::string key = msg.getParams()[1];
-        if (key != channel.getPassword())
+        std::string providedPass = "";
+        if (msg.getParams().size() >= 2)
+            providedPass = msg.getParams()[1];
+        if (providedPass != channel.getPassword())
         {
-            client.sendReply(":ircserv 475 " + channelName + " :Cannot join channel (+k)");
+            client.sendReply(":ircserv 475 " + client.getNick() + " " + channelName + " :Cannot join channel (+k)");
             return;
         }
     }
@@ -144,11 +146,11 @@ void handleJoin(const Message& msg, Client& client, std::map<int, Client>& clien
         return;
     channel.addMember(client.getSockFd());
 
-    if (channel.getMembers().size() == 1) // premier membre est operator
+    if (channel.getMembers().size() == 1)
         channel.addOperator(client.getSockFd());
 
     std::string joinMsg = ":" + client.getNick() + "!~" + client.getUsername() + "@localhost JOIN " + channelName;
-    channel.broadcast(joinMsg, clients); // notifier le channel des nouveaux
+    channel.broadcast(joinMsg, clients);
 
     if (!channel.getTopic().empty())
         client.sendReply(":ircserv 332 " + client.getNick() + " " + channelName + " :" + channel.getTopic());
@@ -243,7 +245,6 @@ void handleTopic(const Message& msg, Client& client, std::map<int, Client>& clie
         return;
     }
 
-    // for mode t
     if (channel.isTopicLocked() && !channel.isOperator(client.getSockFd()))
     {
             client.sendReply(":ircserv 482 " + channelName + " :You're not channel operator");
@@ -389,7 +390,6 @@ void handleKick(const Message& msg, Client& client, std::map<int, Client>& clien
 
 void handleInvite(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels)
 {
-    // todo : gerer +i quand il sera implemente
     if (!client.isRegistered())
     {
         client.sendReply(":ircserv 451 * :You have not registered");
@@ -461,7 +461,6 @@ void handleQuit(const Message& msg, Client& client, std::map<int, Client>& clien
 
 void handleMode(const Message& msg, Client& client, std::map<int, Client>& clients, std::map<std::string, Channel>& channels) 
 {
-    ///mode #cool +o MEAT
     if (!client.isRegistered())
     {
         client.sendReply(":ircserv 451 * :You have not registered");
@@ -512,10 +511,21 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
     if (msg.getParams().size() > 2)
         lastParam = msg.getParams()[2];
 
+    if (!targetChannel.isOperator(client.getSockFd()))
+    {
+        client.sendReply(":ircserv 482 " + client.getNick() + " " + target + " :You're not channel operator");
+        return;
+    }
+
     Client* user = NULL;
 
-    if (!lastParam.empty())
+    if (flag == 'o')
     {
+        if (lastParam.empty())
+        {
+            client.sendReply(":ircserv 461 MODE :Not enough parameters");
+            return;
+        }
         for (std::map<int, Client>::iterator it = clients.begin(); it != clients.end(); ++it)
         {
             if (it->second.getNick() == lastParam)
@@ -531,6 +541,7 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
         }
     }
     
+
     switch (flag)
     {
         case 'i':
@@ -550,5 +561,11 @@ void handleMode(const Message& msg, Client& client, std::map<int, Client>& clien
                 : targetChannel.removeUserLimit();
             break;
     }
-    return; 
+
+    std::string modeMsg = ":" + client.getNick() + "!" + client.getUsername() + "@" + client.getHost() 
+                        + " MODE " + target + " " + mode;
+    if (!lastParam.empty())
+        modeMsg += " " + lastParam;
+    
+    targetChannel.broadcast(modeMsg, clients);
 }
