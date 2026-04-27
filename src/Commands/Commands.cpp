@@ -40,7 +40,16 @@ void handleNick(const Message& msg, Client& client, std::map<int, Client>& clien
             return;
         }
     }
-    client.setNick(newNick);
+    if (client.isRegistered())
+    {
+        std::string oldNick = client.getNick();
+        client.setNick(newNick);
+        client.sendReply(":" + oldNick + "!" + client.getUsername() + "@" + client.getHost() + " NICK :" + newNick);
+    }
+    else
+    {
+        client.setNick(newNick);
+    }
     client.tryToRegister();
 }
 

@@ -53,6 +53,7 @@ class Client {
         const std::string& getUsername() const;
         const std::string& getRealname() const;
         const std::string& getBuffer() const;
+        const char* getHost() const;
 };
 
 std::ostream& operator<<( std::ostream& os, const Client& other );

@@ -131,6 +131,10 @@ const std::string& Client::getRealname() const {
     return (this->_realname);
 }
 
+const char* Client::getHost() const {
+    return (this->_host);
+}
+
 void Client::sendReply(const std::string& reply) 
 {
     std::string msg = reply + "\r\n";
